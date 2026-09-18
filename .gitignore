@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# Java / Maven
+target/
+*.class
+
+# Environment variables
+.env
+.env.*
+!.env.example
