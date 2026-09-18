@@ -1,54 +1,183 @@
-<main class="container">
-  <h1>Pedidos 360</h1>
-  <p>
-    Frontend Cloud Native
-  </p>
-  <hr>
-  <button (click) ="login()">
-    Iniciar Sesion
-  </button>
-  <button (click) ="verSesion()">
-    Ver Sesion
-  </button>
-  <button (click) ="logout()">
-    Cerrar Sesion
-  </button>
+<main class="store">
 
-  @if (autenticado){
-    <section>
-      <h2>Usuario Autenticado</h2>
-      <p>{{usuario}}</p>
+  <nav class="navbar">
+    <div class="apple-logo">●</div>
 
-      <h3>Access Token</h3>
-      <textarea rows="10" cols="80" readonly>{{token}}</textarea>
+    <span class="store-name">Apple Store</span>
 
-      <hr>
-      <button (click)="consultarPedidos()">
-        Consultar Pedidos
+    <div class="nav-links">
+      <span>Store</span>
+      <span>Productos</span>
+      <span>Pedidos</span>
+      <span>Soporte</span>
+    </div>
+  </nav>
+
+
+  <section class="hero">
+
+    <p class="eyebrow">APPLE STORE</p>
+
+    <h1>Lo mejor de Apple.<br>Todo en un solo lugar.</h1>
+
+    <p class="hero-description">
+      Explora tus productos, gestiona tu cuenta y consulta
+      tus pedidos de forma sencilla.
+    </p>
+
+    <div class="hero-actions">
+
+      <button class="btn btn-primary" (click)="login()">
+        Iniciar sesión
       </button>
-      @if (cargandoPedidos) {
-        <p>Cargando Pedidos.......</p>
-      }
-      @if(errorPedidos){
-        <p>{{errorPedidos}}</p>
-      }
-      @if (pedidos.length > 0) {
-        @for(pedido of pedidos; track pedido.id){
-          <article>
-            <h3>
-              Pedido #{{pedido.id}}
-            </h3>
-            <p><strong>Estado:</strong> {{pedido.estado}}</p>
-            <p><strong>Producto:</strong> {{pedido.producto}}</p>
-            <hr>
-          </article>
+
+      <button class="btn btn-secondary" (click)="verSesion()">
+        Ver sesión
+      </button>
+
+      <button class="btn btn-secondary" (click)="logout()">
+        Cerrar sesión
+      </button>
+
+    </div>
+
+  </section>
+
+
+  @if (autenticado) {
+
+    <section class="account">
+
+      <div class="account-header">
+
+        <div>
+          <p class="eyebrow">CUENTA</p>
+          <h2>Hola, {{usuario}}</h2>
+          <p class="account-description">
+            Tu sesión está activa.
+          </p>
+        </div>
+
+        <div class="status">
+          <span class="status-dot"></span>
+          Sesión activa
+        </div>
+
+      </div>
+
+
+      <div class="token-card">
+
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">SEGURIDAD</p>
+            <h3>Access Token</h3>
+          </div>
+        </div>
+
+        <textarea
+          rows="8"
+          readonly
+          [value]="token">
+        </textarea>
+
+      </div>
+
+
+      <!-- Pedidos -->
+      <div class="orders">
+
+        <div class="orders-header">
+
+          <div>
+            <p class="eyebrow">APPLE STORE</p>
+            <h3>Mis pedidos</h3>
+          </div>
+
+          <button
+            class="btn btn-primary small"
+            (click)="consultarPedidos()">
+            Consultar pedidos
+          </button>
+
+        </div>
+
+
+        @if (cargandoPedidos) {
+
+          <div class="message">
+            <div class="spinner"></div>
+            <p>Cargando pedidos...</p>
+          </div>
+
         }
 
-      }
+
+        @if (errorPedidos) {
+
+          <div class="error-message">
+            {{errorPedidos}}
+          </div>
+
+        }
+
+
+        @if (pedidos.length > 0) {
+
+          <div class="orders-list">
+
+            @for (pedido of pedidos; track pedido.id) {
+
+              <article class="order-card">
+
+                <div class="order-icon">
+                  
+                </div>
+
+                <div class="order-info">
+
+                  <span class="order-number">
+                    Pedido #{{pedido.id}}
+                  </span>
+
+                  <h4>{{pedido.producto}}</h4>
+
+                  <p>
+                    Estado:
+                    <strong>{{pedido.estado}}</strong>
+                  </p>
+
+                </div>
+
+                <div class="order-arrow">
+                  ›
+                </div>
+
+              </article>
+
+            }
+
+          </div>
+
+        }
+
+      </div>
 
     </section>
 
-
   }
+
+
+  <footer>
+
+    <p>
+      Apple Store Ficticio
+    </p>
+
+    <p>
+      Proyecto académico · Cloud Native
+    </p>
+
+  </footer>
 
 </main>
