@@ -87,7 +87,7 @@ describe('App', () => {
     }
   });
 
-  it('verifica sesión sin mostrar el token y limpia los datos al salir', async () => {
+  it('oculta el token por defecto, permite mostrarlo y ocultarlo, y lo limpia al salir', async () => {
     vi.mocked(getCurrentUser).mockResolvedValue({ username: 'estudiante', userId: '1' });
     vi.mocked(fetchAuthSession).mockResolvedValue({ tokens: { accessToken: { toString: () => 'token-de-prueba', payload: {} } } });
     const fixture = TestBed.createComponent(App);
@@ -96,11 +96,29 @@ describe('App', () => {
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('Token obtenido correctamente');
     expect(fixture.nativeElement.textContent).not.toContain('token-de-prueba');
+    const boton = fixture.nativeElement.querySelector('.token-toggle') as HTMLButtonElement;
+    expect(boton.textContent).toContain('Mostrar Access Token');
+    expect(boton.getAttribute('aria-expanded')).toBe('false');
+    expect(fixture.nativeElement.querySelector('#access-token')).toBeNull();
+    boton.click();
+    await fixture.whenStable();
+    expect(boton.textContent).toContain('Ocultar Access Token');
+    expect(boton.getAttribute('aria-expanded')).toBe('true');
+    expect(fixture.nativeElement.querySelector('#access-token').textContent).toBe('token-de-prueba');
+    boton.click();
+    await fixture.whenStable();
+    expect(boton.textContent).toContain('Mostrar Access Token');
+    expect(fixture.nativeElement.querySelector('#access-token')).toBeNull();
+    expect(fetchAuthSession).toHaveBeenCalledTimes(1);
+    boton.click();
+    await fixture.whenStable();
     await fixture.componentInstance.logout();
     await fixture.whenStable();
     expect(signOut).toHaveBeenCalledTimes(1);
     expect(fixture.nativeElement.querySelector('.account')).toBeNull();
     expect(fixture.componentInstance.usuario).toBe('');
+    expect(fixture.componentInstance.accessToken).toBe('');
+    expect(fixture.componentInstance.mostrarAccessToken).toBe(false);
   });
 
   it('muestra fallos de inicio y cierre de sesión sin detalles técnicos', async () => {

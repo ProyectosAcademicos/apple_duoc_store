@@ -20,6 +20,8 @@ export class App {
   private readonly destroyRef = inject(DestroyRef);
 
   usuario = '';
+  accessToken = '';
+  mostrarAccessToken = false;
   autenticado = false;
   productos: Producto[] = [];
   cargandoProductos = false;
@@ -71,6 +73,8 @@ export class App {
         return;
       }
       this.usuario = user.username;
+      this.accessToken = session.tokens.accessToken.toString();
+      this.mostrarAccessToken = false;
       this.autenticado = true;
     } catch (error) {
       this.limpiarSesion();
@@ -120,6 +124,8 @@ export class App {
 
   private limpiarSesion() {
     this.usuario = '';
+    this.accessToken = '';
+    this.mostrarAccessToken = false;
     this.autenticado = false;
     this.productos = [];
     this.errorProductos = '';

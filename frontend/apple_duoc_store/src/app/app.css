@@ -320,6 +320,23 @@
 }
 
 
+.token-toggle {
+  margin-top: 16px;
+}
+
+.access-token {
+  padding: 18px;
+  border: 1px solid #d2d2d7;
+  border-radius: 14px;
+  background: #f5f5f7;
+  color: #424245;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .token-card h3,
 .orders h3 {
   margin: 0;

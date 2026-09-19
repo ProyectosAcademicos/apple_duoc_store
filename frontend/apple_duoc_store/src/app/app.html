@@ -82,6 +82,17 @@
         </div>
 
         <p class="account-description">Token obtenido correctamente.</p>
+        <button
+          type="button"
+          class="btn btn-secondary small token-toggle"
+          [attr.aria-expanded]="mostrarAccessToken"
+          aria-controls="access-token"
+          (click)="mostrarAccessToken = !mostrarAccessToken">
+          {{mostrarAccessToken ? 'Ocultar Access Token' : 'Mostrar Access Token'}}
+        </button>
+        @if (mostrarAccessToken) {
+          <p id="access-token" class="access-token">{{accessToken}}</p>
+        }
 
       </div>
 
