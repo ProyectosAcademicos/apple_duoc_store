@@ -7,6 +7,14 @@ import{
 }from "@angular/common/http";
 import { REQUIERE_AUTENTICACION } from './auth.interceptor';
 
+export interface Producto {
+    id: number;
+    nombre: string;
+    categoria: string;
+    precio: number;
+    stock: number;
+}
+
 @Injectable ({ providedIn: 'root'})
 
 export class PedidosService{
@@ -16,9 +24,9 @@ export class PedidosService{
     ){}
 
     obtenerPedidos(){
-        return this.http.get<any[]>(
+        return this.http.get<Producto[]>(
             this.apiUrl,
             { context: new HttpContext().set(REQUIERE_AUTENTICACION, true) }
         );
     }
-} //texto prueba
+}

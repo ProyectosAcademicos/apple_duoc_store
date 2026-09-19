@@ -1,16 +1,17 @@
 import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { signInWithRedirect, signOut, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-import { PedidosService } from './pedidos.service';
+import { PedidosService, Producto } from './pedidos.service';
 
 const ERROR_CONEXION = 'No pudimos conectarnos con el servidor. Intenta nuevamente.';
 const ERROR_SESION = 'Tu sesión expiró. Inicia sesión nuevamente.';
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [CurrencyPipe],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -20,7 +21,7 @@ export class App {
 
   usuario = '';
   autenticado = false;
-  productos: any[] = [];
+  productos: Producto[] = [];
   cargandoProductos = false;
   procesandoSesion = false;
   errorProductos = '';

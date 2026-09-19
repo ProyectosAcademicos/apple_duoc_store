@@ -32,7 +32,7 @@ describe('authInterceptor', () => {
     } });
     const result = firstValueFrom(service.obtenerPedidos());
     await Promise.resolve();
-    const req = controller.expectOne(request => request.url.endsWith('/api/producto'));
+    const req = controller.expectOne(request => request.method === 'GET');
     expect(req.request.headers.get('Authorization')).toBe('Bearer access-de-prueba');
     req.flush([]);
     await expect(result).resolves.toEqual([]);
@@ -74,7 +74,7 @@ describe('authInterceptor', () => {
     } });
     const result = firstValueFrom(service.obtenerPedidos()).catch(error => error);
     await Promise.resolve();
-    controller.expectOne(request => request.url.endsWith('/api/producto'))
+    controller.expectOne(request => request.method === 'GET')
       .flush({}, { status: 403, statusText: 'Forbidden' });
     expect(await result).toBeInstanceOf(HttpErrorResponse);
     expect((await result).status).toBe(403);

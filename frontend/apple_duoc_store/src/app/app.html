@@ -144,9 +144,11 @@
                   <h4>{{producto.nombre}}</h4>
 
                   <p>
-                    Estado:
-                    <strong>{{producto.estado}}</strong>
+                    Categoría:
+                    <strong>{{producto.categoria}}</strong>
                   </p>
+                  <p>Precio: <strong>{{producto.precio | currency:'CLP':'code':'1.0-0'}}</strong></p>
+                  <p>Stock: <strong>{{producto.stock}}</strong></p>
 
                 </div>
 

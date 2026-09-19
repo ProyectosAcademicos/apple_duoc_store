@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
-import { PedidosService } from './pedidos.service';
+import { PedidosService, Producto } from './pedidos.service';
 import { fetchAuthSession, getCurrentUser, signInWithRedirect, signOut } from 'aws-amplify/auth';
 
 vi.mock('aws-amplify/auth', () => ({
@@ -13,11 +13,11 @@ vi.mock('aws-amplify/auth', () => ({
 }));
 
 describe('App', () => {
-  let respuesta: Subject<any[]>;
+  let respuesta: Subject<Producto[]>;
   let obtenerPedidos: ReturnType<typeof vi.fn>;
   beforeEach(async () => {
     vi.resetAllMocks();
-    respuesta = new Subject<any[]>();
+    respuesta = new Subject<Producto[]>();
     obtenerPedidos = vi.fn(() => respuesta.asObservable());
     await TestBed.configureTestingModule({
       imports: [App],
@@ -55,6 +55,12 @@ describe('App', () => {
     await fixture.whenStable();
     expect(boton.disabled).toBe(false);
     expect(fixture.nativeElement.querySelector('.orders-list').textContent).toContain('iPhone');
+    const tarjeta = fixture.nativeElement.querySelector('.order-card').textContent;
+    expect(tarjeta).toContain('Teléfono');
+    expect(tarjeta).toContain('CLP');
+    expect(tarjeta).toContain('1,000');
+    expect(tarjeta).toContain('Stock: 2');
+    expect(tarjeta).not.toContain('Estado:');
     expect(fixture.nativeElement.querySelector('.spinner')).toBeNull();
   });
 
