@@ -17,7 +17,6 @@ export class App {
 
 
   usuario = '';
-  token = '';
   autenticado = false;
   productos: any[] = [];
   cargandoProductos = false;
@@ -38,13 +37,9 @@ export class App {
       const user = await getCurrentUser();
       const session = await fetchAuthSession();
       this.usuario = user.username;
-      this.token = session.tokens?.accessToken?.toString()??'';
-      this.autenticado = true;
-      console.log("Usuario:",user);
-      console.log("Access Token:",session.tokens?.accessToken?.toString())
+      this.autenticado = !!session.tokens?.accessToken;
     }
-    catch(Error){
-      console.log("No existe sesion",Error);
+    catch {
       this.autenticado = false;
     }
   }
@@ -58,13 +53,8 @@ export class App {
       next: (data) => {
         this.productos = data;
         this.cargandoProductos = false;
-        console.log(
-          'Productos:',
-          data
-        );
       },
       error: (error) => {
-        console.error(error);
         this.errorProductos =
           `Error HTTP ${error.status}`;
         this.cargandoProductos = false;
