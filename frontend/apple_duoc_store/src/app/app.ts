@@ -19,9 +19,9 @@ export class App {
   usuario = '';
   token = '';
   autenticado = false;
-  pedidos: any[] = [];
-  cargandoPedidos = false;
-  errorPedidos = '';
+  productos: any[] = [];
+  cargandoProductos = false;
+  errorProductos = '';
 
   constructor(
     private pedidosService : PedidosService
@@ -49,25 +49,25 @@ export class App {
     }
   }
 
-  consultarPedidos() {
-  this.cargandoPedidos = true;
-  this.errorPedidos = '';
+  consultarProductos() {
+  this.cargandoProductos = true;
+  this.errorProductos = '';
   this.pedidosService
     .obtenerPedidos()
     .subscribe({
       next: (data) => {
-        this.pedidos = data;
-        this.cargandoPedidos = false;
+        this.productos = data;
+        this.cargandoProductos = false;
         console.log(
-          'Pedidos:',
+          'Productos:',
           data
         );
       },
       error: (error) => {
         console.error(error);
-        this.errorPedidos =
+        this.errorProductos =
           `Error HTTP ${error.status}`;
-        this.cargandoPedidos = false;
+        this.cargandoProductos = false;
       }
     });
 }

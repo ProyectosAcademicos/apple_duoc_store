@@ -91,42 +91,40 @@
 
           <div>
             <p class="eyebrow">APPLE STORE</p>
-            <h3>Mis pedidos</h3>
+              <button
+                class="btn btn-primary small"
+                (click)="consultarProductos()">
+                Consultar productos
+            </button>
           </div>
-
-          <button
-            class="btn btn-primary small"
-            (click)="consultarPedidos()">
-            Consultar pedidos
-          </button>
-
         </div>
 
 
-        @if (cargandoPedidos) {
+        @if (cargandoProductos) {
 
           <div class="message">
             <div class="spinner"></div>
-            <p>Cargando pedidos...</p>
+            <p>Cargando productos...</p>
           </div>
 
         }
 
 
-        @if (errorPedidos) {
+        @if (errorProductos) {
 
           <div class="error-message">
-            {{errorPedidos}}
+            {{errorProductos}}
           </div>
 
         }
 
 
-        @if (pedidos.length > 0) {
+
+        @if (productos.length > 0) {
 
           <div class="orders-list">
 
-            @for (pedido of pedidos; track pedido.id) {
+            @for (producto of productos; track producto.id) {
 
               <article class="order-card">
 
@@ -137,14 +135,14 @@
                 <div class="order-info">
 
                   <span class="order-number">
-                    Pedido #{{pedido.id}}
+                    Producto #{{producto.id}}
                   </span>
 
-                  <h4>{{pedido.producto}}</h4>
+                  <h4>{{producto.nombre}}</h4>
 
                   <p>
                     Estado:
-                    <strong>{{pedido.estado}}</strong>
+                    <strong>{{producto.estado}}</strong>
                   </p>
 
                 </div>

@@ -6,16 +6,16 @@ import { Amplify } from 'aws-amplify';
 Amplify.configure({ // se encarga de todo lo necesario para que se llame cognito
   Auth:{
     Cognito:{
-      userPoolId: 'us-east-1_RboQoD7j7',
-      userPoolClientId : '347a6dgttns44mofct7p8vjavs',
+      userPoolId: 'us-east-1_Rz7VXo01Y',
+      userPoolClientId : 'c8eu46ap36i4m5l4kn54u3l39',
       loginWith:{
         oauth:{
-          domain: 'us-east-1rboqod7j7.auth.us-east-1.amazoncognito.com',
+          domain: 'us-east-1rz7vxo01y.auth.us-east-1.amazoncognito.com',
           scopes:[
             'email',
             'openid',
             'profile',
-            'rs-api-pedidos/pedidos-read'
+            'apple-productos-duoc/read-productos'
           ],
           redirectSignIn:[
             'http://localhost:4200'

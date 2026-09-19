@@ -14,9 +14,9 @@ public class AppleProductoController {
         return List.of(
             Map.of (
                 "id", 1,
-                "nombre", "iPhone 13",
+                "nombre", "iPhone Duo",
                 "categoria", "iPhone",
-                "precio", 1499990,
+                "precio", 2499990,
                 "stock", 10
             ),
 
