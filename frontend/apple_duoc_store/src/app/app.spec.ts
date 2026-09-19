@@ -57,8 +57,7 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('.orders-list').textContent).toContain('iPhone');
     const tarjeta = fixture.nativeElement.querySelector('.order-card').textContent;
     expect(tarjeta).toContain('Teléfono');
-    expect(tarjeta).toContain('CLP');
-    expect(tarjeta).toContain('1,000');
+    expect(tarjeta).toMatch(/\$\s?1\.000/);
     expect(tarjeta).toContain('Stock: 2');
     expect(tarjeta).not.toContain('Estado:');
     expect(fixture.nativeElement.querySelector('.spinner')).toBeNull();
