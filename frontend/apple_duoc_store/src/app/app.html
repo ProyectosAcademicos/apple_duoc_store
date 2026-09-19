@@ -27,20 +27,26 @@
 
     <div class="hero-actions">
 
-      <button class="btn btn-primary" (click)="login()">
+      <button class="btn btn-primary" (click)="login()" [disabled]="procesandoSesion || cargandoProductos">
         Iniciar sesión
       </button>
 
-      <button class="btn btn-secondary" (click)="verSesion()">
+      <button class="btn btn-secondary" (click)="verSesion()" [disabled]="procesandoSesion || cargandoProductos">
         Ver sesión
       </button>
 
-      <button class="btn btn-secondary" (click)="logout()">
+      <button class="btn btn-secondary" (click)="logout()" [disabled]="procesandoSesion || cargandoProductos">
         Cerrar sesión
       </button>
 
     </div>
 
+    @if (procesandoSesion) {
+      <p class="message" role="status">Procesando sesión...</p>
+    }
+    @if (errorSesion) {
+      <p class="error-message" role="alert">{{errorSesion}}</p>
+    }
   </section>
 
 
@@ -81,7 +87,7 @@
 
 
       <!-- Pedidos -->
-      <div class="orders">
+      <div class="orders" [attr.aria-busy]="cargandoProductos">
 
         <div class="orders-header">
 
@@ -89,7 +95,8 @@
             <p class="eyebrow">APPLE STORE</p>
               <button
                 class="btn btn-primary small"
-                (click)="consultarProductos()">
+                (click)="consultarProductos()"
+                [disabled]="cargandoProductos || procesandoSesion">
                 Consultar productos
             </button>
           </div>
@@ -98,8 +105,8 @@
 
         @if (cargandoProductos) {
 
-          <div class="message">
-            <div class="spinner"></div>
+          <div class="message" role="status">
+            <div class="spinner" aria-hidden="true"></div>
             <p>Cargando productos...</p>
           </div>
 
@@ -108,7 +115,7 @@
 
         @if (errorProductos) {
 
-          <div class="error-message">
+          <div class="error-message" role="alert">
             {{errorProductos}}
           </div>
 
