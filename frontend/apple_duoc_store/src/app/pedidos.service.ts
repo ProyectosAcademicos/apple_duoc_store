@@ -3,8 +3,9 @@ import{
 }from "@angular/core";
 
 import{
-    HttpClient
+    HttpClient, HttpContext
 }from "@angular/common/http";
+import { REQUIERE_AUTENTICACION } from './auth.interceptor';
 
 @Injectable ({ providedIn: 'root'})
 
@@ -16,7 +17,8 @@ export class PedidosService{
 
     obtenerPedidos(){
         return this.http.get<any[]>(
-            this.apiUrl
+            this.apiUrl,
+            { context: new HttpContext().set(REQUIERE_AUTENTICACION, true) }
         );
     }
 } //texto prueba
