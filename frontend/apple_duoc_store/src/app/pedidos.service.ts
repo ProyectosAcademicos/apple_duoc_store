@@ -8,13 +8,13 @@ import{
 
 @Injectable ({ providedIn: 'root'})
 
-export class PedidosService{
+export class ProductosService{
     private apiUrl = "https://psxwhfaf33.execute-api.us-east-1.amazonaws.com/test/api/productos";
     constructor(
         private http: HttpClient
     ){}
 
-    obtenerPedidos(){
+    obtenerProductos(){
         return this.http.get<any[]>(
             this.apiUrl
         );

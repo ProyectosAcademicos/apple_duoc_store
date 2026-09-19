@@ -100,7 +100,7 @@
         </div>
 
 
-        @if (cargandoProductos) {
+        @if (cargandoProductos && productos.length === 0) {
 
           <div class="message">
             <div class="spinner"></div>
@@ -141,8 +141,8 @@
                   <h4>{{producto.nombre}}</h4>
 
                   <p>
-                    Estado:
-                    <strong>{{producto.estado}}</strong>
+                    Precio:
+                    <strong>{{ producto.precio | currency:'CLP':'symbol':'1.0-0':'es-CL' }}</strong>
                   </p>
 
                 </div>
