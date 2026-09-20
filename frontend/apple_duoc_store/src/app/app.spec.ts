@@ -1,10 +1,27 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { PedidosService, Producto } from './pedidos.service';
+import { fetchAuthSession, getCurrentUser, signInWithRedirect, signOut } from 'aws-amplify/auth';
+
+vi.mock('aws-amplify/auth', () => ({
+  fetchAuthSession: vi.fn(),
+  getCurrentUser: vi.fn(),
+  signInWithRedirect: vi.fn(),
+  signOut: vi.fn()
+}));
 
 describe('App', () => {
+  let respuesta: Subject<Producto[]>;
+  let obtenerPedidos: ReturnType<typeof vi.fn>;
   beforeEach(async () => {
+    vi.resetAllMocks();
+    respuesta = new Subject<Producto[]>();
+    obtenerPedidos = vi.fn(() => respuesta.asObservable());
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [{ provide: PedidosService, useValue: { obtenerPedidos } }],
     })
       .compileComponents();
   });
@@ -19,7 +36,103 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, apple_duoc_store');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Lo mejor de Apple.');
+  });
+
+  it('evita consultas duplicadas y actualiza la vista al recibir productos', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.autenticado = true;
+    fixture.detectChanges();
+    const boton = fixture.nativeElement.querySelector('.orders button') as HTMLButtonElement;
+    boton.click();
+    app.consultarProductos();
+    await fixture.whenStable();
+    expect(obtenerPedidos).toHaveBeenCalledTimes(1);
+    expect(boton.disabled).toBe(true);
+    respuesta.next([{ id: 1, nombre: 'iPhone', categoria: 'Teléfono', precio: 1000, stock: 2 }]);
+    respuesta.complete();
+    await fixture.whenStable();
+    expect(boton.disabled).toBe(false);
+    expect(fixture.nativeElement.querySelector('.orders-list').textContent).toContain('iPhone');
+    const tarjeta = fixture.nativeElement.querySelector('.order-card').textContent;
+    expect(tarjeta).toContain('Teléfono');
+    expect(tarjeta).toMatch(/\$\s?1\.000/);
+    expect(tarjeta).toContain('Stock: 2');
+    expect(tarjeta).not.toContain('Estado:');
+    expect(fixture.nativeElement.querySelector('.spinner')).toBeNull();
+  });
+
+  it.each([
+    [0, 'No pudimos conectarnos con el servidor. Intenta nuevamente.'],
+    [401, 'Tu sesión expiró. Inicia sesión nuevamente.'],
+    [403, 'No tienes autorización para consultar esta información.'],
+    [500, 'No fue posible cargar los productos.']
+  ])('muestra un mensaje humano para HTTP %s', async (status, mensaje) => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.autenticado = true;
+    app.usuario = 'estudiante';
+    fixture.detectChanges();
+    app.consultarProductos();
+    respuesta.error(new HttpErrorResponse({ status: Number(status) }));
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(mensaje);
+    expect(app.cargandoProductos).toBe(false);
+    if (status === 401) {
+      expect(app.autenticado).toBe(false);
+      expect(app.usuario).toBe('');
+      expect(app.productos).toEqual([]);
+    }
+  });
+
+  it('oculta el token por defecto, permite mostrarlo y ocultarlo, y lo limpia al salir', async () => {
+    vi.mocked(getCurrentUser).mockResolvedValue({ username: 'estudiante', userId: '1' });
+    vi.mocked(fetchAuthSession).mockResolvedValue({ tokens: { accessToken: { toString: () => 'token-de-prueba', payload: {} } } });
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.componentInstance.verSesion();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('Token obtenido correctamente');
+    expect(fixture.nativeElement.textContent).not.toContain('token-de-prueba');
+    const boton = fixture.nativeElement.querySelector('.token-toggle') as HTMLButtonElement;
+    expect(boton.textContent).toContain('Mostrar Access Token');
+    expect(boton.getAttribute('aria-expanded')).toBe('false');
+    expect(fixture.nativeElement.querySelector('#access-token')).toBeNull();
+    boton.click();
+    await fixture.whenStable();
+    expect(boton.textContent).toContain('Ocultar Access Token');
+    expect(boton.getAttribute('aria-expanded')).toBe('true');
+    expect(fixture.nativeElement.querySelector('#access-token').textContent).toBe('token-de-prueba');
+    boton.click();
+    await fixture.whenStable();
+    expect(boton.textContent).toContain('Mostrar Access Token');
+    expect(fixture.nativeElement.querySelector('#access-token')).toBeNull();
+    expect(fetchAuthSession).toHaveBeenCalledTimes(1);
+    boton.click();
+    await fixture.whenStable();
+    await fixture.componentInstance.logout();
+    await fixture.whenStable();
+    expect(signOut).toHaveBeenCalledTimes(1);
+    expect(fixture.nativeElement.querySelector('.account')).toBeNull();
+    expect(fixture.componentInstance.usuario).toBe('');
+    expect(fixture.componentInstance.accessToken).toBe('');
+    expect(fixture.componentInstance.mostrarAccessToken).toBe(false);
+  });
+
+  it('muestra fallos de inicio y cierre de sesión sin detalles técnicos', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    vi.mocked(signInWithRedirect).mockRejectedValue(new Error('detalle técnico'));
+    await fixture.componentInstance.login();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('No fue posible iniciar sesión. Intenta nuevamente.');
+    vi.mocked(signOut).mockRejectedValue(new Error('detalle técnico'));
+    await fixture.componentInstance.logout();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('No fue posible cerrar sesión. Intenta nuevamente.');
+    expect(fixture.nativeElement.textContent).not.toContain('detalle técnico');
+    expect(fixture.componentInstance.procesandoSesion).toBe(false);
   });
 });
 

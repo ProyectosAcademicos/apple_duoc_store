@@ -27,20 +27,26 @@
 
     <div class="hero-actions">
 
-      <button class="btn btn-primary" (click)="login()">
+      <button class="btn btn-primary" (click)="login()" [disabled]="procesandoSesion || cargandoProductos">
         Iniciar sesión
       </button>
 
-      <button class="btn btn-secondary" (click)="verSesion()">
+      <button class="btn btn-secondary" (click)="verSesion()" [disabled]="procesandoSesion || cargandoProductos">
         Ver sesión
       </button>
 
-      <button class="btn btn-secondary" (click)="logout()">
+      <button class="btn btn-secondary" (click)="logout()" [disabled]="procesandoSesion || cargandoProductos">
         Cerrar sesión
       </button>
 
     </div>
 
+    @if (procesandoSesion) {
+      <p class="message" role="status">Procesando sesión...</p>
+    }
+    @if (errorSesion) {
+      <p class="error-message" role="alert">{{errorSesion}}</p>
+    }
   </section>
 
 
@@ -71,21 +77,28 @@
         <div class="card-header">
           <div>
             <p class="eyebrow">SEGURIDAD</p>
-            <h3>Access Token</h3>
+            <h3>Sesión autenticada</h3>
           </div>
         </div>
 
-        <textarea
-          rows="8"
-          readonly
-          [value]="token">
-        </textarea>
+        <p class="account-description">Token obtenido correctamente.</p>
+        <button
+          type="button"
+          class="btn btn-secondary small token-toggle"
+          [attr.aria-expanded]="mostrarAccessToken"
+          aria-controls="access-token"
+          (click)="mostrarAccessToken = !mostrarAccessToken">
+          {{mostrarAccessToken ? 'Ocultar Access Token' : 'Mostrar Access Token'}}
+        </button>
+        @if (mostrarAccessToken) {
+          <p id="access-token" class="access-token">{{accessToken}}</p>
+        }
 
       </div>
 
 
       <!-- Pedidos -->
-      <div class="orders">
+      <div class="orders" [attr.aria-busy]="cargandoProductos">
 
         <div class="orders-header">
 
@@ -93,17 +106,18 @@
             <p class="eyebrow">APPLE STORE</p>
               <button
                 class="btn btn-primary small"
-                (click)="consultarProductos()">
+                (click)="consultarProductos()"
+                [disabled]="cargandoProductos || procesandoSesion">
                 Consultar productos
             </button>
           </div>
         </div>
 
 
-        @if (cargandoProductos && productos.length === 0) {
+        @if (cargandoProductos) {
 
-          <div class="message">
-            <div class="spinner"></div>
+          <div class="message" role="status">
+            <div class="spinner" aria-hidden="true"></div>
             <p>Cargando productos...</p>
           </div>
 
@@ -112,7 +126,7 @@
 
         @if (errorProductos) {
 
-          <div class="error-message">
+          <div class="error-message" role="alert">
             {{errorProductos}}
           </div>
 
@@ -141,9 +155,11 @@
                   <h4>{{producto.nombre}}</h4>
 
                   <p>
-                    Precio:
-                    <strong>{{ producto.precio | currency:'CLP':'symbol':'1.0-0':'es-CL' }}</strong>
+                    Categoría:
+                    <strong>{{producto.categoria}}</strong>
                   </p>
+                  <p>Precio: <strong>{{producto.precio | currency:'CLP':'symbol':'1.0-0':'es-CL'}}</strong></p>
+                  <p>Stock: <strong>{{producto.stock}}</strong></p>
 
                 </div>
 

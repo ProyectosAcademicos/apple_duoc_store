@@ -3,20 +3,30 @@ import{
 }from "@angular/core";
 
 import{
-    HttpClient
+    HttpClient, HttpContext
 }from "@angular/common/http";
+import { REQUIERE_AUTENTICACION } from './auth.interceptor';
+
+export interface Producto {
+    id: number;
+    nombre: string;
+    categoria: string;
+    precio: number;
+    stock: number;
+}
 
 @Injectable ({ providedIn: 'root'})
 
-export class ProductosService{
-    private apiUrl = "https://psxwhfaf33.execute-api.us-east-1.amazonaws.com/test/api/productos";
+export class PedidosService{
+    private apiUrl = "https://jv7jt7mk3a.execute-api.us-east-1.amazonaws.com/test/api/producto";
     constructor(
         private http: HttpClient
     ){}
 
-    obtenerProductos(){
-        return this.http.get<any[]>(
-            this.apiUrl
+    obtenerPedidos(){
+        return this.http.get<Producto[]>(
+            this.apiUrl,
+            { context: new HttpContext().set(REQUIERE_AUTENTICACION, true) }
         );
     }
-} //texto prueba
+}
