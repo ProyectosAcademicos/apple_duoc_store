@@ -18,7 +18,7 @@ export interface Producto {
 @Injectable ({ providedIn: 'root'})
 
 export class PedidosService{
-    private apiUrl = "https://jv7jt7mk3a.execute-api.us-east-1.amazonaws.com/test/api/producto";
+    private apiUrl = "https://psxwhfaf33.execute-api.us-east-1.amazonaws.com/test/api/productos";
     constructor(
         private http: HttpClient
     ){}
