@@ -2,74 +2,86 @@ package cl.duoc.apple_backend.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 public class AppleProductoController {
 
     @GetMapping("api/productos")
     public List<Map<String, Object>> listarProductos() {
-
-        return List.of(
-            Map.of (
-                "id", 1,
-                "nombre", "iPhone Duo",
-                "categoria", "iPhone",
-                "precio", 2499990,
-                "stock", 10
-            ),
-
-            Map.of (
-                "id", 2,
-                "nombre", "MacBook Air",
-                "categoria", "Mac",
-                "precio", 1299990,
-                "stock", 8
-            ),
-
-            Map.of (
-                "id", 3,
-                "nombre", "iPad Pro",
-                "categoria", "iPad",
-                "precio", 999990,
-                "stock", 5
-            ),
-
-            Map.of (
-                "id", 4,
-                "nombre", "Apple Watch Series 7",
-                "categoria", "Apple Watch",
-                "precio", 499990,
-                "stock", 12
-            ),
-
-            Map.of (
-                "id", 5,
-                "nombre", "AirPods Pro",
-                "categoria", "AirPods",
-                "precio", 249990,
-                "stock", 15
-            )
-        );
+        return productos;
     }
+
+    private final List<Map<String, Object>> productos = new ArrayList<>(
+            List.of(
+                    Map.of(
+                            "id", 1,
+                            "nombre", "iPhone Duo",
+                            "categoria", "iPhone",
+                            "precio", 2499990,
+                            "stock", 10),
+                    Map.of(
+                            "id", 2,
+                            "nombre", "MacBook Air",
+                            "categoria", "Mac",
+                            "precio", 1299990,
+                            "stock", 8),
+                    Map.of(
+                            "id", 3,
+                            "nombre", "iPad Pro",
+                            "categoria", "iPad",
+                            "precio", 999990,
+                            "stock", 5),
+                    Map.of(
+                            "id", 4,
+                            "nombre", "Apple Watch Series 7",
+                            "categoria", "Apple Watch",
+                            "precio", 499990,
+                            "stock", 12),
+                    Map.of(
+                            "id", 5,
+                            "nombre", "AirPods Pro",
+                            "categoria", "AirPods",
+                            "precio", 249990,
+                            "stock", 15)));
 
     @GetMapping("api/productos/{id}")
-    public Map<String, Object> obtenerProductosPorId(@PathVariable int id){
+    public Map<String, Object> obtenerProductosPorId(@PathVariable int id) {
 
         return listarProductos().stream()
-        .filter(producto -> producto.get("id").equals(id))
-        .findFirst()
-        .orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "Producto no encontrado"
-        ));
+                .filter(producto -> producto.get("id").equals(id))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Producto no encontrado"));
 
     }
-    
+
+    @PostMapping("api/productos")
+    public Map<String, Object> crearProducto(@RequestBody Map<String, Object> nuevoProducto) {
+
+        Object nuevoId = nuevoProducto.get("id");
+
+        boolean idExiste = productos.stream()
+                .anyMatch(producto -> producto.get("id").equals(nuevoId));
+
+        if (idExiste) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Ya existe un producto con ese ID");
+        }
+
+        productos.add(nuevoProducto);
+
+        return nuevoProducto;
+    }
+
 }
