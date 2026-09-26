@@ -49,4 +49,13 @@ export class PedidosService{
             }
         );
     }
+
+    eliminarProducto(id: number) {
+        return this.http.delete<Producto>(
+            `${this.apiUrl}/${id}`,
+            {
+                context: new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
 }

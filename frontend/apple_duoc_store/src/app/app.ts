@@ -233,6 +233,32 @@ export class App {
       })
   }
 
+  eliminarProducto(producto: Producto) {
+    const confirmar = window.confirm(
+      `¿Seguro que deseas eliminar "${producto.nombre}"?`
+    );
+    if (!confirmar) return;
+    
+    this.pedidosService
+    .eliminarProducto(producto.id)
+    .pipe(
+      finalize(() => {
+        this.changeDetector.markForCheck();
+      })
+    )
+    .subscribe({
+      next: () => {
+        this.productos = this.productos.filter(
+          productoLista => productoLista.id !== producto.id
+        );
+      },
+
+      error: () => {
+        this.errorProductos = 'no fue posible eliminar el producto.'
+      }
+    });
+  }
+
   private limpiarSesion() {
     this.usuario = '';
     this.accessToken = '';
