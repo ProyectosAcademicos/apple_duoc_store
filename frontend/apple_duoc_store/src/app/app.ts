@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, registerLocaleData } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import localeEsCl from '@angular/common/locales/es-CL';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -14,7 +15,7 @@ const ERROR_SESION = 'Tu sesión expiró. Inicia sesión nuevamente.';
 
 @Component({
   selector: 'app-root',
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -27,6 +28,14 @@ export class App {
   mostrarAccessToken = false;
   autenticado = false;
   productos: Producto[] = [];
+  nuevoProducto: Producto = {
+    id: 0,
+    nombre: '',
+    categoria: '',
+    precio: 0,
+    stock: 0
+  };
+  mostrarFormularioCrear = false;
   cargandoProductos = false;
   procesandoSesion = false;
   errorProductos = '';
@@ -121,6 +130,26 @@ export class App {
         } else {
           this.errorProductos = 'No fue posible cargar los productos.';
         }
+      }
+    });
+  }
+
+  crearProducto() {
+    if (!this.autenticado) {
+      this.errorSesion = ERROR_SESION;
+      return;
+    }
+
+    this.pedidosService.crearProducto(this.nuevoProducto).subscribe({
+
+      next: (productoCreado) => {
+        this.productos.push(productoCreado);
+        this.mostrarFormularioCrear = false
+      },
+      
+
+      error: () => {
+        this.errorProductos = 'No fue posible crear el producto.';
       }
     });
   }
