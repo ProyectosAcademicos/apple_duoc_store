@@ -29,4 +29,14 @@ export class PedidosService{
             { context: new HttpContext().set(REQUIERE_AUTENTICACION, true) }
         );
     }
+
+    crearProducto(producto: Producto) {
+        return this.http.post<Producto>(
+            this.apiUrl,
+            producto,
+            {
+                context: new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
 }
