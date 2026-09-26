@@ -123,34 +123,35 @@
 
             <label>
               ID
-              <input type="number" [(ngModel)]="nuevoProducto.id" />
+              <input type="number" min="1" required [(ngModel)]="nuevoProducto.id" />
             </label>
 
             <label>
               Nombre
-              <input type="text" [(ngModel)]="nuevoProducto.nombre" />
+              <input type="text" required [(ngModel)]="nuevoProducto.nombre" />
             </label>
 
             <label>
               Categoría
-              <input type="text" [(ngModel)]="nuevoProducto.categoria" />
+              <input type="text" required [(ngModel)]="nuevoProducto.categoria" />
             </label>
 
             <label>
               Precio
-              <input type="number" [(ngModel)]="nuevoProducto.precio" />
+              <input type="number" min="1" required [(ngModel)]="nuevoProducto.precio" />
             </label>
 
             <label>
               Stock
-              <input type="number" [(ngModel)]="nuevoProducto.stock" />
+              <input type="number" min="0" required [(ngModel)]="nuevoProducto.stock" />
             </label>
 
             <button
               type="button",
               class="btn btn-primary small"
-              (click)="crearProducto()">
-              Crear producto
+              (click)="crearProducto()"
+              [disabled]="creandoProducto">
+              {{ creandoProducto ? 'Creando producto...' : 'Crear producto' }}
             </button>
 
           </div>

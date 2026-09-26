@@ -17,7 +17,7 @@ const ERROR_SESION = 'Tu sesión expiró. Inicia sesión nuevamente.';
   selector: 'app-root',
   imports: [CurrencyPipe, FormsModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
   private readonly changeDetector = inject(ChangeDetectorRef);
@@ -33,10 +33,11 @@ export class App {
     nombre: '',
     categoria: '',
     precio: 0,
-    stock: 0
+    stock: 0,
   };
   mostrarFormularioCrear = false;
   cargandoProductos = false;
+  creandoProducto = false;
   procesandoSesion = false;
   errorProductos = '';
   errorSesion = '';
@@ -90,9 +91,10 @@ export class App {
       this.autenticado = true;
     } catch (error) {
       this.limpiarSesion();
-      this.errorSesion = error instanceof Error && error.name === 'NetworkError'
-        ? ERROR_CONEXION
-        : 'No pudimos verificar tu sesión. Inicia sesión nuevamente.';
+      this.errorSesion =
+        error instanceof Error && error.name === 'NetworkError'
+          ? ERROR_CONEXION
+          : 'No pudimos verificar tu sesión. Inicia sesión nuevamente.';
     } finally {
       this.procesandoSesion = false;
       this.changeDetector.markForCheck();
@@ -108,50 +110,87 @@ export class App {
     this.cargandoProductos = true;
     this.errorProductos = '';
     this.productos = [];
-    this.pedidosService.obtenerPedidos().pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => {
-        this.cargandoProductos = false;
-        this.changeDetector.markForCheck();
-      })
-    ).subscribe({
-      next: (data) => {
-        this.productos = data;
-      },
-      error: (error: unknown) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) {
-          this.limpiarSesion();
-          this.errorSesion = ERROR_SESION;
-        } else if (error instanceof HttpErrorResponse && error.status === 403) {
-          this.errorProductos = 'No tienes autorización para consultar esta información.';
-        } else if ((error instanceof HttpErrorResponse && error.status === 0)
-          || (error instanceof Error && error.name === 'NetworkError')) {
-          this.errorProductos = ERROR_CONEXION;
-        } else {
-          this.errorProductos = 'No fue posible cargar los productos.';
-        }
-      }
-    });
+    this.pedidosService
+      .obtenerPedidos()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.cargandoProductos = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.productos = data;
+        },
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse && error.status === 401) {
+            this.limpiarSesion();
+            this.errorSesion = ERROR_SESION;
+          } else if (error instanceof HttpErrorResponse && error.status === 403) {
+            this.errorProductos = 'No tienes autorización para consultar esta información.';
+          } else if (
+            (error instanceof HttpErrorResponse && error.status === 0) ||
+            (error instanceof Error && error.name === 'NetworkError')
+          ) {
+            this.errorProductos = ERROR_CONEXION;
+          } else {
+            this.errorProductos = 'No fue posible cargar los productos.';
+          }
+        },
+      });
   }
 
   crearProducto() {
+    if (this.creandoProducto) return;
+    
     if (!this.autenticado) {
       this.errorSesion = ERROR_SESION;
       return;
     }
+    
+    if (
+      this.nuevoProducto.id <= 0 ||
+      !this.nuevoProducto.nombre.trim() ||
+      !this.nuevoProducto.categoria.trim() ||
+      this.nuevoProducto.precio <= 0 ||
+      this.nuevoProducto.stock < 0
 
-    this.pedidosService.crearProducto(this.nuevoProducto).subscribe({
+    ) {
+      this.errorProductos = 'Completa todos los campos con valores válidos.';
+      return;
+    }
 
-      next: (productoCreado) => {
-        this.productos.push(productoCreado);
-        this.mostrarFormularioCrear = false
-      },
-      
+    this.errorProductos = '';    
+    this.creandoProducto = true;
 
-      error: () => {
-        this.errorProductos = 'No fue posible crear el producto.';
-      }
-    });
+    this.pedidosService
+      .crearProducto(this.nuevoProducto)
+      .pipe(
+        finalize(() => {
+          this.creandoProducto = false;
+          this.changeDetector.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (productoCreado) => {
+          this.productos.push(productoCreado);
+
+          this.nuevoProducto = {
+            id:0,
+            nombre: '',
+            categoria: '',
+            precio: 0,
+            stock: 0,
+          };
+
+          this.mostrarFormularioCrear = false;
+        },
+
+        error: () => {
+          this.errorProductos = 'No fue posible crear el producto.';
+        }
+      });
   }
 
   private limpiarSesion() {
