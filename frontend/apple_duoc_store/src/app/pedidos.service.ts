@@ -39,4 +39,14 @@ export class PedidosService{
             }
         );
     }
+
+    actualizarProducto(producto: Producto) {
+        return this.http.put<Producto>(
+            `${this.apiUrl}/${producto.id}`,
+            producto,
+            {
+                context:new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
 }

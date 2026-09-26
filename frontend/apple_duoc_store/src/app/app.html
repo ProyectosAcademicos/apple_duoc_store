@@ -147,12 +147,60 @@
             </label>
 
             <button
-              type="button",
+              type="button"
+              ,
               class="btn btn-primary small"
               (click)="crearProducto()"
-              [disabled]="creandoProducto">
+              [disabled]="creandoProducto"
+            >
               {{ creandoProducto ? 'Creando producto...' : 'Crear producto' }}
             </button>
+          </div>
+        }
+
+        @if (productoEditando) {
+          <div class="product-form">
+            <p class="eyebrom">EDITAR PRODUCTO</p>
+            <h3>{{ productoEditando.nombre }}</h3>
+
+            <label>
+              ID
+              <input type="number" [value]="productoEditando.id" disabled />
+            </label>
+
+            <label>
+              Nombre
+              <input type="text" required [(ngModel)]="productoEditando.nombre">
+            </label>
+
+            <label>
+              Categoria
+              <input type="text", required [(ngModel)]="productoEditando.categoria">
+            </label>
+
+            <label>
+              Precio
+              <input type="number" min="1" required [(ngModel)]="productoEditando.precio">
+            </label>
+
+            <label>
+              Stock
+              <input type="number", min="0" required [(ngModel)]="productoEditando.stock">
+            </label>
+
+            <button
+            type="button"
+            class="btn btn-secondary small"
+            (click)="guardarCambiosProducto()">
+            Guardar cambios
+          </button>
+
+            <button
+            type="button"
+            class="btn btn-secondary small"
+            (click)="productoEditando = null">
+            Cancelar
+          </button>
 
           </div>
         }
@@ -196,7 +244,13 @@
                   </p>
                 </div>
 
-                <div class="order-arrow">›</div>
+                <button
+                  type="button"
+                  class="btn btn-secondary small"
+                  (click)="seleccionarProductoParaEditar(producto)"
+                >
+                  Editar
+                </button>
               </article>
             }
           </div>

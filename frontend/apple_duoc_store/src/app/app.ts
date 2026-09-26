@@ -28,6 +28,7 @@ export class App {
   mostrarAccessToken = false;
   autenticado = false;
   productos: Producto[] = [];
+  productoEditando: Producto | null = null;
   nuevoProducto: Producto = {
     id: 0,
     nombre: '',
@@ -191,6 +192,45 @@ export class App {
           this.errorProductos = 'No fue posible crear el producto.';
         }
       });
+  }
+
+  seleccionarProductoParaEditar(producto: Producto) {
+    this.productoEditando = { ...producto };
+  }
+
+  guardarCambiosProducto() {
+    if (!this.productoEditando) return;
+
+    this.pedidosService
+      .actualizarProducto(this.productoEditando)
+      .pipe(
+        finalize(() => {
+          this.changeDetector.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (productoActualizado) => {
+
+          const indice = this.productos.findIndex(
+            producto => producto.id === productoActualizado.id
+          );
+
+          if (indice !== -1) {
+            this.productos = this.productos.map(
+              producto => 
+                producto.id === productoActualizado.id
+                  ? productoActualizado
+                  : producto
+            );
+          }
+
+          this.productoEditando = null;
+        },
+
+        error: () => {
+          this.errorProductos = 'No fue posible actualizar el producto.'
+        }
+      })
   }
 
   private limpiarSesion() {
