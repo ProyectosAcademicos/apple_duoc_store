@@ -6,7 +6,6 @@ import{
     HttpClient, HttpContext
 }from "@angular/common/http";
 import { REQUIERE_AUTENTICACION } from './auth.interceptor';
-import { isContext } from "vm";
 
 export interface Producto {
     id: number;
