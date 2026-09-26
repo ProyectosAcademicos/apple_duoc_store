@@ -3,6 +3,8 @@ package cl.duoc.apple_backend.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -110,6 +112,25 @@ public class AppleProductoController {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "producto no encontrado"
+            );
+        }
+
+        @DeleteMapping("api/productos/{id}")
+        public Map<String, Object> eliminarProducto(@PathVariable int id) {
+
+            for (int i = 0; i <productos.size(); i++) {
+                
+                if (productos.get(i).get("id").equals(id)) {
+
+                    Map<String, Object> productoEliminado = productos.remove(i);
+
+                    return productoEliminado;
+                }
+            }
+
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Producto no encontrado"
             );
         }
 }
