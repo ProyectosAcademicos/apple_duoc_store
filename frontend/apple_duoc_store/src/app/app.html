@@ -93,11 +93,15 @@
         }
       </div>
 
-      <!-- Pedidos -->
+      <!-- Productos -->
       <div class="orders" [attr.aria-busy]="cargandoProductos">
         <div class="orders-header">
           <div>
             <p class="eyebrow">APPLE STORE</p>
+            <h3>Productos</h3>
+            <p class="account-description">Consulta y administra tu catálogo.</p>
+          </div>
+          <div class="product-actions">
             <!-- Btn para consultar productos -->
             <button
               class="btn btn-primary small"
@@ -113,24 +117,28 @@
             >
               {{ mostrarFormularioCrear ? 'Cancelar' : '+ Crear producto' }}
             </button>
+          </div>
+        </div>
 
-            <div class="product-search">
-              <input
-                type="number"
-                min="1"
-                [(ngModel)]="idProductoBuscar"
-                placeholder="ID del producto"
-              />
+        <div class="product-search" role="search" aria-label="Buscar producto por ID">
+          <label for="product-search-id">Buscar por ID</label>
+          <div class="search-controls">
+            <input
+              id="product-search-id"
+              type="number"
+              min="1"
+              [(ngModel)]="idProductoBuscar"
+              placeholder="ID del producto"
+            />
 
-              <button type="button" class="btn btn-secondary small" (click)="buscarProductoPorId()">
-                Buscar por ID
-              </button>
-            </div>
+            <button type="button" class="btn btn-secondary small" (click)="buscarProductoPorId()">
+              Buscar por ID
+            </button>
           </div>
         </div>
 
         @if (productoEncontrado) {
-          <article class="order'card">
+          <article class="order-card search-result" aria-label="Producto encontrado">
             <div class="order-icon"></div>
 
             <div class="order-info">
@@ -159,9 +167,11 @@
         }
 
         @if (mostrarFormularioCrear) {
-          <div class="product-form">
-            <p class="eyebrow">NUEVO PRODUCTO</p>
-            <h3>Crear producto</h3>
+          <div class="product-form" role="group" aria-labelledby="create-product-title">
+            <div class="form-heading">
+              <p class="eyebrow">NUEVO PRODUCTO</p>
+              <h3 id="create-product-title">Crear producto</h3>
+            </div>
 
             <label>
               ID
@@ -179,7 +189,7 @@
             </label>
 
             <label>
-              Precio
+              Precio (CLP)
               <input type="number" min="1" required [(ngModel)]="nuevoProducto.precio" />
             </label>
 
@@ -188,22 +198,25 @@
               <input type="number" min="0" required [(ngModel)]="nuevoProducto.stock" />
             </label>
 
-            <button
-              type="button"
-              ,
-              class="btn btn-primary small"
-              (click)="crearProducto()"
-              [disabled]="creandoProducto"
-            >
-              {{ creandoProducto ? 'Creando producto...' : 'Crear producto' }}
-            </button>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-primary small"
+                (click)="crearProducto()"
+                [disabled]="creandoProducto"
+              >
+                {{ creandoProducto ? 'Creando producto...' : 'Crear producto' }}
+              </button>
+            </div>
           </div>
         }
 
         @if (productoEditando) {
-          <div class="product-form">
-            <p class="eyebrom">EDITAR PRODUCTO</p>
-            <h3>{{ productoEditando.nombre }}</h3>
+          <div class="product-form" role="group" aria-labelledby="edit-product-title">
+            <div class="form-heading">
+              <p class="eyebrow">EDITAR PRODUCTO</p>
+              <h3 id="edit-product-title">{{ productoEditando.nombre }}</h3>
+            </div>
 
             <label>
               ID
@@ -216,31 +229,37 @@
             </label>
 
             <label>
-              Categoria
-              <input type="text" , required [(ngModel)]="productoEditando.categoria" />
+              Categoría
+              <input type="text" required [(ngModel)]="productoEditando.categoria" />
             </label>
 
             <label>
-              Precio
+              Precio (CLP)
               <input type="number" min="1" required [(ngModel)]="productoEditando.precio" />
             </label>
 
             <label>
               Stock
-              <input type="number" , min="0" required [(ngModel)]="productoEditando.stock" />
+              <input type="number" min="0" required [(ngModel)]="productoEditando.stock" />
             </label>
 
-            <button
-              type="button"
-              class="btn btn-secondary small"
-              (click)="guardarCambiosProducto()"
-            >
-              Guardar cambios
-            </button>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-primary small"
+                (click)="guardarCambiosProducto()"
+              >
+                Guardar cambios
+              </button>
 
-            <button type="button" class="btn btn-secondary small" (click)="productoEditando = null">
-              Cancelar
-            </button>
+              <button
+                type="button"
+                class="btn btn-secondary small"
+                (click)="productoEditando = null"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         }
 
@@ -283,21 +302,23 @@
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  class="btn btn-secondary small"
-                  (click)="seleccionarProductoParaEditar(producto)"
-                >
-                  Editar
-                </button>
+                <div class="card-actions">
+                  <button
+                    type="button"
+                    class="btn btn-secondary small"
+                    (click)="seleccionarProductoParaEditar(producto)"
+                  >
+                    Editar
+                  </button>
 
-                <button
-                  type="button"
-                  class="btn btn-secondary small"
-                  (click)="eliminarProducto(producto)"
-                >
-                  Eliminar
-                </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary small btn-delete"
+                    (click)="eliminarProducto(producto)"
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </article>
             }
           </div>
