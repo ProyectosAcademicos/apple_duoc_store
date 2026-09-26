@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 public class AppleProductoController {
@@ -53,4 +58,18 @@ public class AppleProductoController {
             )
         );
     }
+
+    @GetMapping("api/productos/{id}")
+    public Map<String, Object> obtenerProductosPorId(@PathVariable int id){
+
+        return listarProductos().stream()
+        .filter(producto -> producto.get("id").equals(id))
+        .findFirst()
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Producto no encontrado"
+        ));
+
+    }
+    
 }
