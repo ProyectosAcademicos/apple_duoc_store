@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -84,4 +85,31 @@ public class AppleProductoController {
         return nuevoProducto;
     }
 
+    @PutMapping("api/productos/{id}")
+    public Map<String, Object> actualizarProducto(
+        @PathVariable int id,
+        @RequestBody Map<String, Object> productoActualizado) {
+            for (int i = 0; i < productos.size(); i ++) {
+                
+                if (productos.get(i).get("id").equals(id)){
+                    
+                    Map<String, Object> producto = Map.of(
+                        "id", id,
+                        "nombre", productoActualizado.get("nombre"),
+                        "categoria", productoActualizado.get("categoria"),
+                        "precio", productoActualizado.get("precio"),
+                        "stock", productoActualizado.get("stock")
+                    );
+
+                    productos.set(i, producto);
+
+                    return producto;
+                }
+            }
+
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "producto no encontrado"
+            );
+        }
 }
