@@ -28,6 +28,8 @@ export class App {
   mostrarAccessToken = false;
   autenticado = false;
   productos: Producto[] = [];
+  idProductoBuscar = 0;
+  productoEncontrado: Producto | null = null;
   productoEditando: Producto | null = null;
   nuevoProducto: Producto = {
     id: 0,
@@ -142,6 +144,39 @@ export class App {
       });
   }
 
+  buscarProductoPorId(){
+    if (this.idProductoBuscar <= 0) {
+      this.errorProductos = `Ingresar un ID válido.`;
+      return;
+    }
+
+    this.errorProductos = '';
+    this.productoEncontrado = null;
+
+    this.pedidosService
+      .obtenerProductoPorId(this.idProductoBuscar)
+      .pipe(
+        finalize(() => {
+          this.changeDetector.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (producto) => {
+          this.productoEncontrado = producto;
+        },
+
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse && error.status === 404) {
+            this.errorProductos = "No se encontró un producto con ese ID.";
+          
+          } else {
+            this.errorProductos = "No fue posible buscar el producto."
+          }
+        }
+      });
+  }
+
+
   crearProducto() {
     if (this.creandoProducto) return;
     
@@ -238,7 +273,7 @@ export class App {
       `¿Seguro que deseas eliminar "${producto.nombre}"?`
     );
     if (!confirmar) return;
-    
+
     this.pedidosService
     .eliminarProducto(producto.id)
     .pipe(

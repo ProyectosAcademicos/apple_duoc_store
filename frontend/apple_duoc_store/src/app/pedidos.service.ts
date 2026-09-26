@@ -6,6 +6,7 @@ import{
     HttpClient, HttpContext
 }from "@angular/common/http";
 import { REQUIERE_AUTENTICACION } from './auth.interceptor';
+import { isContext } from "vm";
 
 export interface Producto {
     id: number;
@@ -52,6 +53,15 @@ export class PedidosService{
 
     eliminarProducto(id: number) {
         return this.http.delete<Producto>(
+            `${this.apiUrl}/${id}`,
+            {
+                context: new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
+
+    obtenerProductoPorId(id: number) {
+        return this.http.get<Producto>(
             `${this.apiUrl}/${id}`,
             {
                 context: new HttpContext().set(REQUIERE_AUTENTICACION, true)

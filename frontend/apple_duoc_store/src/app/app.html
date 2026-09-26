@@ -113,8 +113,50 @@
             >
               {{ mostrarFormularioCrear ? 'Cancelar' : '+ Crear producto' }}
             </button>
+
+            <div class="product-search">
+              <input
+                type="number"
+                min="1"
+                [(ngModel)]="idProductoBuscar"
+                placeholder="ID del producto"
+              />
+
+              <button type="button" class="btn btn-secondary small" (click)="buscarProductoPorId()">
+                Buscar por ID
+              </button>
+            </div>
           </div>
         </div>
+
+        @if (productoEncontrado) {
+          <article class="order'card">
+            <div class="order-icon"></div>
+
+            <div class="order-info">
+              <span class="order-number"> Producto #{{ productoEncontrado.id }} </span>
+
+              <h4>{{ productoEncontrado.nombre }}</h4>
+
+              <p>
+                Categoría:
+                <strong>{{ productoEncontrado.categoria }}</strong>
+              </p>
+
+              <p>
+                Precio:
+                <strong>
+                  {{ productoEncontrado.precio | currency: 'CLP' : 'symbol' : '1.0-0' : 'es-CL' }}
+                </strong>
+              </p>
+
+              <p>
+                Stock:
+                <strong>{{ productoEncontrado.stock }}</strong>
+              </p>
+            </div>
+          </article>
+        }
 
         @if (mostrarFormularioCrear) {
           <div class="product-form">
@@ -170,38 +212,35 @@
 
             <label>
               Nombre
-              <input type="text" required [(ngModel)]="productoEditando.nombre">
+              <input type="text" required [(ngModel)]="productoEditando.nombre" />
             </label>
 
             <label>
               Categoria
-              <input type="text", required [(ngModel)]="productoEditando.categoria">
+              <input type="text" , required [(ngModel)]="productoEditando.categoria" />
             </label>
 
             <label>
               Precio
-              <input type="number" min="1" required [(ngModel)]="productoEditando.precio">
+              <input type="number" min="1" required [(ngModel)]="productoEditando.precio" />
             </label>
 
             <label>
               Stock
-              <input type="number", min="0" required [(ngModel)]="productoEditando.stock">
+              <input type="number" , min="0" required [(ngModel)]="productoEditando.stock" />
             </label>
 
             <button
-            type="button"
-            class="btn btn-secondary small"
-            (click)="guardarCambiosProducto()">
-            Guardar cambios
-          </button>
+              type="button"
+              class="btn btn-secondary small"
+              (click)="guardarCambiosProducto()"
+            >
+              Guardar cambios
+            </button>
 
-            <button
-            type="button"
-            class="btn btn-secondary small"
-            (click)="productoEditando = null">
-            Cancelar
-          </button>
-
+            <button type="button" class="btn btn-secondary small" (click)="productoEditando = null">
+              Cancelar
+            </button>
           </div>
         }
 
@@ -253,11 +292,12 @@
                 </button>
 
                 <button
-                type="button"
-                class="btn btn-secondary small"
-                (click)="eliminarProducto(producto)">
-                Eliminar  
-              </button>
+                  type="button"
+                  class="btn btn-secondary small"
+                  (click)="eliminarProducto(producto)"
+                >
+                  Eliminar
+                </button>
               </article>
             }
           </div>
