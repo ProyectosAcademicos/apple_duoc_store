@@ -120,51 +120,27 @@
           </div>
         </div>
 
-        <div class="product-search" role="search" aria-label="Buscar producto por ID">
-          <label for="product-search-id">Buscar por ID</label>
+        <div class="product-search" role="search" aria-label="Buscar producto por ID, nombre o categoría">
+          <label for="product-search">Buscar producto</label>
+
           <div class="search-controls">
             <input
-              id="product-search-id"
-              type="number"
-              min="1"
-              [(ngModel)]="idProductoBuscar"
-              placeholder="ID del producto"
+              id="product-search"
+              type="text"
+              [(ngModel)]="filtroProducto"
+              placeholder="ID, nombre o categoría"
             />
 
-            <button type="button" class="btn btn-secondary small" (click)="buscarProductoPorId()">
-              Buscar por ID
+            <button
+              type="button"
+              class="btn btn-secondary small"
+              (click)="buscarProductos()"
+              >
+              Buscar
             </button>
+
           </div>
         </div>
-
-        @if (productoEncontrado) {
-          <article class="order-card search-result" aria-label="Producto encontrado">
-            <div class="order-icon"></div>
-
-            <div class="order-info">
-              <span class="order-number"> Producto #{{ productoEncontrado.id }} </span>
-
-              <h4>{{ productoEncontrado.nombre }}</h4>
-
-              <p>
-                Categoría:
-                <strong>{{ productoEncontrado.categoria }}</strong>
-              </p>
-
-              <p>
-                Precio:
-                <strong>
-                  {{ productoEncontrado.precio | currency: 'CLP' : 'symbol' : '1.0-0' : 'es-CL' }}
-                </strong>
-              </p>
-
-              <p>
-                Stock:
-                <strong>{{ productoEncontrado.stock }}</strong>
-              </p>
-            </div>
-          </article>
-        }
 
         @if (mostrarFormularioCrear) {
           <div class="product-form" role="group" aria-labelledby="create-product-title">
@@ -268,7 +244,7 @@
 
         @if (productos.length > 0) {
           <div class="orders-list">
-            @for (producto of productos; track producto.id) {
+            @for (producto of productosFiltrados; track producto.id) {
               <article class="order-card">
                 <div class="order-icon"></div>
 

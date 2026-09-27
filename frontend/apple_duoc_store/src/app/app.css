@@ -737,7 +737,6 @@ footer p {
 .card-actions { margin-left: auto; }
 .btn-delete { color: #b42318; border-color: #efc6c2; }
 .btn-delete:hover:not(:disabled) { background: #fff2f2; border-color: #b42318; }
-.search-result { margin-bottom: 24px; border-color: #b8b8bd; }
 .orders > .error-message { margin: 20px 0; }
 .orders input:focus-visible, .btn:focus-visible {
   outline: 3px solid #0071e3;

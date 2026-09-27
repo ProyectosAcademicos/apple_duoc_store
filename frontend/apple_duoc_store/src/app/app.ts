@@ -28,8 +28,8 @@ export class App {
   mostrarAccessToken = false;
   autenticado = false;
   productos: Producto[] = [];
-  idProductoBuscar = 0;
-  productoEncontrado: Producto | null = null;
+  filtroProducto = '';
+  filtroAplicado = '';
   productoEditando: Producto | null = null;
   nuevoProducto: NuevoProducto = {
     nombre: '',
@@ -43,6 +43,24 @@ export class App {
   procesandoSesion = false;
   errorProductos = '';
   errorSesion = '';
+
+  get productosFiltrados(): Producto[] {
+    const filtro = this.filtroAplicado.trim().toLowerCase();
+
+    if (!filtro) {
+      return this.productos;
+    }
+
+    return this.productos.filter(producto =>
+      producto.id.toString().includes(filtro) ||
+      producto.nombre.toLowerCase().includes(filtro) ||
+      producto.categoria.toLowerCase().includes(filtro)
+    );
+  }
+
+  buscarProductos() {
+    this.filtroAplicado = this.filtroProducto;
+  }
 
   constructor(private pedidosService: PedidosService) {}
 
@@ -142,39 +160,6 @@ export class App {
         },
       });
   }
-
-  buscarProductoPorId(){
-    if (this.idProductoBuscar <= 0) {
-      this.errorProductos = `Ingresar un ID válido.`;
-      return;
-    }
-
-    this.errorProductos = '';
-    this.productoEncontrado = null;
-
-    this.pedidosService
-      .obtenerProductoPorId(this.idProductoBuscar)
-      .pipe(
-        finalize(() => {
-          this.changeDetector.markForCheck();
-        })
-      )
-      .subscribe({
-        next: (producto) => {
-          this.productoEncontrado = producto;
-        },
-
-        error: (error: unknown) => {
-          if (error instanceof HttpErrorResponse && error.status === 404) {
-            this.errorProductos = "No se encontró un producto con ese ID.";
-          
-          } else {
-            this.errorProductos = "No fue posible buscar el producto."
-          }
-        }
-      });
-  }
-
 
   crearProducto() {
     if (this.creandoProducto) return;
