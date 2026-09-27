@@ -29,4 +29,42 @@ export class PedidosService{
             { context: new HttpContext().set(REQUIERE_AUTENTICACION, true) }
         );
     }
+
+    crearProducto(producto: Producto) {
+        return this.http.post<Producto>(
+            this.apiUrl,
+            producto,
+            {
+                context: new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
+
+    actualizarProducto(producto: Producto) {
+        return this.http.put<Producto>(
+            `${this.apiUrl}/${producto.id}`,
+            producto,
+            {
+                context:new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
+
+    eliminarProducto(id: number) {
+        return this.http.delete<Producto>(
+            `${this.apiUrl}/${id}`,
+            {
+                context: new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
+
+    obtenerProductoPorId(id: number) {
+        return this.http.get<Producto>(
+            `${this.apiUrl}/${id}`,
+            {
+                context: new HttpContext().set(REQUIERE_AUTENTICACION, true)
+            }
+        );
+    }
 }
