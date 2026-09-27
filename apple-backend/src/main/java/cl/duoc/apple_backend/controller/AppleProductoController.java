@@ -70,21 +70,22 @@ public class AppleProductoController {
 
     @PostMapping("api/productos")
     public Map<String, Object> crearProducto(@RequestBody Map<String, Object> nuevoProducto) {
+        int nuevoId = productos.stream()
+                .mapToInt(producto -> (int) producto.get("id"))
+                .max().orElse(0) + 1;
 
-        Object nuevoId = nuevoProducto.get("id");
+        Map<String, Object> productoCreado = Map.of(
+            "id", nuevoId,
+            "nombre", nuevoProducto.get("nombre"),
+            "categoria", nuevoProducto.get("categoria"),
+            "precio", nuevoProducto.get("precio"),
+            "stock", nuevoProducto.get("stock")
+        );
 
-        boolean idExiste = productos.stream()
-                .anyMatch(producto -> producto.get("id").equals(nuevoId));
+        productos.add(productoCreado);
 
-        if (idExiste) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Ya existe un producto con ese ID");
-        }
+        return productoCreado;
 
-        productos.add(nuevoProducto);
-
-        return nuevoProducto;
     }
 
     @PutMapping("api/productos/{id}")

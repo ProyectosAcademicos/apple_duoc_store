@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +6,7 @@ import localeEsCl from '@angular/common/locales/es-CL';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { signInWithRedirect, signOut, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-import { PedidosService, Producto } from './pedidos.service';
+import { PedidosService, Producto, NuevoProducto } from './pedidos.service';
 
 registerLocaleData(localeEsCl);
 
@@ -28,11 +28,10 @@ export class App {
   mostrarAccessToken = false;
   autenticado = false;
   productos: Producto[] = [];
-  idProductoBuscar = 0;
-  productoEncontrado: Producto | null = null;
+  filtroProducto = '';
+  filtroAplicado = '';
   productoEditando: Producto | null = null;
-  nuevoProducto: Producto = {
-    id: 0,
+  nuevoProducto: NuevoProducto = {
     nombre: '',
     categoria: '',
     precio: 0,
@@ -45,7 +44,29 @@ export class App {
   errorProductos = '';
   errorSesion = '';
 
-  constructor(private pedidosService: PedidosService) {}
+  get productosFiltrados(): Producto[] {
+    const filtro = this.filtroAplicado.trim().toLowerCase();
+
+    if (!filtro) {
+      return this.productos;
+    }
+
+    return this.productos.filter(producto =>
+      producto.id.toString().includes(filtro) ||
+      producto.nombre.toLowerCase().includes(filtro) ||
+      producto.categoria.toLowerCase().includes(filtro)
+    );
+  }
+
+  buscarProductos() {
+    this.filtroAplicado = this.filtroProducto;
+  }
+
+  constructor(private pedidosService: PedidosService) {
+    afterNextRender(() => {
+      void this.verSesion(true);
+    });
+  }
 
   async login() {
     if (this.procesandoSesion || this.cargandoProductos) return;
@@ -76,7 +97,7 @@ export class App {
     }
   }
 
-  async verSesion() {
+  async verSesion(comprobacionInicial = false) {
     if (this.procesandoSesion || this.cargandoProductos) return;
     this.procesandoSesion = true;
     this.errorSesion = '';
@@ -85,15 +106,28 @@ export class App {
       const session = await fetchAuthSession();
       if (!session.tokens?.accessToken) {
         this.limpiarSesion();
-        this.errorSesion = ERROR_SESION;
+        if (!comprobacionInicial) this.errorSesion = ERROR_SESION;
         return;
       }
-      this.usuario = user.username;
+      const atributos = session.tokens?.idToken?.payload;
+      this.usuario = [
+        atributos?.['preferred_username'],
+        atributos?.['name'],
+        atributos?.['given_name'],
+        atributos?.['email'],
+        user.username,
+      ]
+        .filter((valor): valor is string => typeof valor === 'string')
+        .map(valor => valor.trim())
+        .find(valor => valor.length > 0) ?? '';
       this.accessToken = session.tokens.accessToken.toString();
       this.mostrarAccessToken = false;
       this.autenticado = true;
     } catch (error) {
       this.limpiarSesion();
+      if (comprobacionInicial && error instanceof Error && error.name === 'UserUnAuthenticatedException') {
+        return;
+      }
       this.errorSesion =
         error instanceof Error && error.name === 'NetworkError'
           ? ERROR_CONEXION
@@ -101,6 +135,9 @@ export class App {
     } finally {
       this.procesandoSesion = false;
       this.changeDetector.markForCheck();
+    }
+    if (this.autenticado && !this.destroyRef.destroyed) {
+      this.consultarProductos();
     }
   }
 
@@ -144,39 +181,6 @@ export class App {
       });
   }
 
-  buscarProductoPorId(){
-    if (this.idProductoBuscar <= 0) {
-      this.errorProductos = `Ingresar un ID válido.`;
-      return;
-    }
-
-    this.errorProductos = '';
-    this.productoEncontrado = null;
-
-    this.pedidosService
-      .obtenerProductoPorId(this.idProductoBuscar)
-      .pipe(
-        finalize(() => {
-          this.changeDetector.markForCheck();
-        })
-      )
-      .subscribe({
-        next: (producto) => {
-          this.productoEncontrado = producto;
-        },
-
-        error: (error: unknown) => {
-          if (error instanceof HttpErrorResponse && error.status === 404) {
-            this.errorProductos = "No se encontró un producto con ese ID.";
-          
-          } else {
-            this.errorProductos = "No fue posible buscar el producto."
-          }
-        }
-      });
-  }
-
-
   crearProducto() {
     if (this.creandoProducto) return;
     
@@ -186,7 +190,6 @@ export class App {
     }
     
     if (
-      this.nuevoProducto.id <= 0 ||
       !this.nuevoProducto.nombre.trim() ||
       !this.nuevoProducto.categoria.trim() ||
       this.nuevoProducto.precio <= 0 ||
@@ -213,7 +216,6 @@ export class App {
           this.productos.push(productoCreado);
 
           this.nuevoProducto = {
-            id:0,
             nombre: '',
             categoria: '',
             precio: 0,
