@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -62,7 +62,11 @@ export class App {
     this.filtroAplicado = this.filtroProducto;
   }
 
-  constructor(private pedidosService: PedidosService) {}
+  constructor(private pedidosService: PedidosService) {
+    afterNextRender(() => {
+      void this.verSesion(true);
+    });
+  }
 
   async login() {
     if (this.procesandoSesion || this.cargandoProductos) return;
@@ -93,7 +97,7 @@ export class App {
     }
   }
 
-  async verSesion() {
+  async verSesion(comprobacionInicial = false) {
     if (this.procesandoSesion || this.cargandoProductos) return;
     this.procesandoSesion = true;
     this.errorSesion = '';
@@ -102,7 +106,7 @@ export class App {
       const session = await fetchAuthSession();
       if (!session.tokens?.accessToken) {
         this.limpiarSesion();
-        this.errorSesion = ERROR_SESION;
+        if (!comprobacionInicial) this.errorSesion = ERROR_SESION;
         return;
       }
       this.usuario = user.username;
@@ -111,6 +115,9 @@ export class App {
       this.autenticado = true;
     } catch (error) {
       this.limpiarSesion();
+      if (comprobacionInicial && error instanceof Error && error.name === 'UserUnAuthenticatedException') {
+        return;
+      }
       this.errorSesion =
         error instanceof Error && error.name === 'NetworkError'
           ? ERROR_CONEXION
@@ -118,6 +125,9 @@ export class App {
     } finally {
       this.procesandoSesion = false;
       this.changeDetector.markForCheck();
+    }
+    if (this.autenticado && !this.destroyRef.destroyed) {
+      this.consultarProductos();
     }
   }
 
