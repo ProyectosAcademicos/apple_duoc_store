@@ -1,5 +1,4 @@
 <main class="store">
-
   <nav class="navbar">
     <div class="apple-logo">●</div>
 
@@ -13,67 +12,65 @@
     </div>
   </nav>
 
-
   <section class="hero">
-
     <p class="eyebrow">APPLE STORE</p>
 
-    <h1>Lo mejor de Apple.<br>Todo en un solo lugar.</h1>
+    <h1>Lo mejor de Apple.<br />Todo en un solo lugar.</h1>
 
     <p class="hero-description">
-      Explora tus productos, gestiona tu cuenta y consulta
-      tus pedidos de forma sencilla.
+      Explora tus productos, gestiona tu cuenta y consulta tus pedidos de forma sencilla.
     </p>
 
     <div class="hero-actions">
-
-      <button class="btn btn-primary" (click)="login()" [disabled]="procesandoSesion || cargandoProductos">
+      <button
+        class="btn btn-primary"
+        (click)="login()"
+        [disabled]="procesandoSesion || cargandoProductos"
+      >
         Iniciar sesión
       </button>
 
-      <button class="btn btn-secondary" (click)="verSesion()" [disabled]="procesandoSesion || cargandoProductos">
+      <button
+        class="btn btn-secondary"
+        (click)="verSesion()"
+        [disabled]="procesandoSesion || cargandoProductos"
+      >
         Ver sesión
       </button>
 
-      <button class="btn btn-secondary" (click)="logout()" [disabled]="procesandoSesion || cargandoProductos">
+      <button
+        class="btn btn-secondary"
+        (click)="logout()"
+        [disabled]="procesandoSesion || cargandoProductos"
+      >
         Cerrar sesión
       </button>
-
     </div>
 
     @if (procesandoSesion) {
       <p class="message" role="status">Procesando sesión...</p>
     }
     @if (errorSesion) {
-      <p class="error-message" role="alert">{{errorSesion}}</p>
+      <p class="error-message" role="alert">{{ errorSesion }}</p>
     }
   </section>
 
-
   @if (autenticado) {
-
     <section class="account">
-
       <div class="account-header">
-
         <div>
           <p class="eyebrow">CUENTA</p>
-          <h2>Hola, {{usuario}}</h2>
-          <p class="account-description">
-            Tu sesión está activa.
-          </p>
+          <h2>Hola, {{ usuario }}</h2>
+          <p class="account-description">Tu sesión está activa.</p>
         </div>
 
         <div class="status">
           <span class="status-dot"></span>
           Sesión activa
         </div>
-
       </div>
 
-
       <div class="token-card">
-
         <div class="card-header">
           <div>
             <p class="eyebrow">SEGURIDAD</p>
@@ -87,111 +84,252 @@
           class="btn btn-secondary small token-toggle"
           [attr.aria-expanded]="mostrarAccessToken"
           aria-controls="access-token"
-          (click)="mostrarAccessToken = !mostrarAccessToken">
-          {{mostrarAccessToken ? 'Ocultar Access Token' : 'Mostrar Access Token'}}
+          (click)="mostrarAccessToken = !mostrarAccessToken"
+        >
+          {{ mostrarAccessToken ? 'Ocultar Access Token' : 'Mostrar Access Token' }}
         </button>
         @if (mostrarAccessToken) {
-          <p id="access-token" class="access-token">{{accessToken}}</p>
+          <p id="access-token" class="access-token">{{ accessToken }}</p>
         }
-
       </div>
 
-
-      <!-- Pedidos -->
+      <!-- Productos -->
       <div class="orders" [attr.aria-busy]="cargandoProductos">
-
         <div class="orders-header">
-
           <div>
             <p class="eyebrow">APPLE STORE</p>
-              <button
-                class="btn btn-primary small"
-                (click)="consultarProductos()"
-                [disabled]="cargandoProductos || procesandoSesion">
-                Consultar productos
+            <h3>Productos</h3>
+            <p class="account-description">Consulta y administra tu catálogo.</p>
+          </div>
+          <div class="product-actions">
+            <!-- Btn para consultar productos -->
+            <button
+              class="btn btn-primary small"
+              (click)="consultarProductos()"
+              [disabled]="cargandoProductos || procesandoSesion"
+            >
+              Consultar productos
+            </button>
+            <!-- Btn para crear productos  -->
+            <button
+              class="btn btn-secondary small"
+              (click)="mostrarFormularioCrear = !mostrarFormularioCrear"
+            >
+              {{ mostrarFormularioCrear ? 'Cancelar' : '+ Crear producto' }}
             </button>
           </div>
         </div>
 
+        <div class="product-search" role="search" aria-label="Buscar producto por ID">
+          <label for="product-search-id">Buscar por ID</label>
+          <div class="search-controls">
+            <input
+              id="product-search-id"
+              type="number"
+              min="1"
+              [(ngModel)]="idProductoBuscar"
+              placeholder="ID del producto"
+            />
+
+            <button type="button" class="btn btn-secondary small" (click)="buscarProductoPorId()">
+              Buscar por ID
+            </button>
+          </div>
+        </div>
+
+        @if (productoEncontrado) {
+          <article class="order-card search-result" aria-label="Producto encontrado">
+            <div class="order-icon"></div>
+
+            <div class="order-info">
+              <span class="order-number"> Producto #{{ productoEncontrado.id }} </span>
+
+              <h4>{{ productoEncontrado.nombre }}</h4>
+
+              <p>
+                Categoría:
+                <strong>{{ productoEncontrado.categoria }}</strong>
+              </p>
+
+              <p>
+                Precio:
+                <strong>
+                  {{ productoEncontrado.precio | currency: 'CLP' : 'symbol' : '1.0-0' : 'es-CL' }}
+                </strong>
+              </p>
+
+              <p>
+                Stock:
+                <strong>{{ productoEncontrado.stock }}</strong>
+              </p>
+            </div>
+          </article>
+        }
+
+        @if (mostrarFormularioCrear) {
+          <div class="product-form" role="group" aria-labelledby="create-product-title">
+            <div class="form-heading">
+              <p class="eyebrow">NUEVO PRODUCTO</p>
+              <h3 id="create-product-title">Crear producto</h3>
+            </div>
+
+            <label>
+              ID
+              <input type="number" min="1" required [(ngModel)]="nuevoProducto.id" />
+            </label>
+
+            <label>
+              Nombre
+              <input type="text" required [(ngModel)]="nuevoProducto.nombre" />
+            </label>
+
+            <label>
+              Categoría
+              <input type="text" required [(ngModel)]="nuevoProducto.categoria" />
+            </label>
+
+            <label>
+              Precio (CLP)
+              <input type="number" min="1" required [(ngModel)]="nuevoProducto.precio" />
+            </label>
+
+            <label>
+              Stock
+              <input type="number" min="0" required [(ngModel)]="nuevoProducto.stock" />
+            </label>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-primary small"
+                (click)="crearProducto()"
+                [disabled]="creandoProducto"
+              >
+                {{ creandoProducto ? 'Creando producto...' : 'Crear producto' }}
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (productoEditando) {
+          <div class="product-form" role="group" aria-labelledby="edit-product-title">
+            <div class="form-heading">
+              <p class="eyebrow">EDITAR PRODUCTO</p>
+              <h3 id="edit-product-title">{{ productoEditando.nombre }}</h3>
+            </div>
+
+            <label>
+              ID
+              <input type="number" [value]="productoEditando.id" disabled />
+            </label>
+
+            <label>
+              Nombre
+              <input type="text" required [(ngModel)]="productoEditando.nombre" />
+            </label>
+
+            <label>
+              Categoría
+              <input type="text" required [(ngModel)]="productoEditando.categoria" />
+            </label>
+
+            <label>
+              Precio (CLP)
+              <input type="number" min="1" required [(ngModel)]="productoEditando.precio" />
+            </label>
+
+            <label>
+              Stock
+              <input type="number" min="0" required [(ngModel)]="productoEditando.stock" />
+            </label>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-primary small"
+                (click)="guardarCambiosProducto()"
+              >
+                Guardar cambios
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-secondary small"
+                (click)="productoEditando = null"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        }
 
         @if (cargandoProductos) {
-
           <div class="message" role="status">
             <div class="spinner" aria-hidden="true"></div>
             <p>Cargando productos...</p>
           </div>
-
         }
-
 
         @if (errorProductos) {
-
           <div class="error-message" role="alert">
-            {{errorProductos}}
+            {{ errorProductos }}
           </div>
-
         }
 
-
-
         @if (productos.length > 0) {
-
           <div class="orders-list">
-
             @for (producto of productos; track producto.id) {
-
               <article class="order-card">
-
-                <div class="order-icon">
-                  
-                </div>
+                <div class="order-icon"></div>
 
                 <div class="order-info">
+                  <span class="order-number"> Producto #{{ producto.id }} </span>
 
-                  <span class="order-number">
-                    Producto #{{producto.id}}
-                  </span>
-
-                  <h4>{{producto.nombre}}</h4>
+                  <h4>{{ producto.nombre }}</h4>
 
                   <p>
                     Categoría:
-                    <strong>{{producto.categoria}}</strong>
+                    <strong>{{ producto.categoria }}</strong>
                   </p>
-                  <p>Precio: <strong>{{producto.precio | currency:'CLP':'symbol':'1.0-0':'es-CL'}}</strong></p>
-                  <p>Stock: <strong>{{producto.stock}}</strong></p>
-
+                  <p>
+                    Precio:
+                    <strong>{{
+                      producto.precio | currency: 'CLP' : 'symbol' : '1.0-0' : 'es-CL'
+                    }}</strong>
+                  </p>
+                  <p>
+                    Stock: <strong>{{ producto.stock }}</strong>
+                  </p>
                 </div>
 
-                <div class="order-arrow">
-                  ›
-                </div>
+                <div class="card-actions">
+                  <button
+                    type="button"
+                    class="btn btn-secondary small"
+                    (click)="seleccionarProductoParaEditar(producto)"
+                  >
+                    Editar
+                  </button>
 
+                  <button
+                    type="button"
+                    class="btn btn-secondary small btn-delete"
+                    (click)="eliminarProducto(producto)"
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </article>
-
             }
-
           </div>
-
         }
-
       </div>
-
     </section>
-
   }
 
-
   <footer>
+    <p>Apple Store Ficticio</p>
 
-    <p>
-      Apple Store Ficticio
-    </p>
-
-    <p>
-      Proyecto académico · Cloud Native
-    </p>
-
+    <p>Proyecto académico · Cloud Native</p>
   </footer>
-
 </main>
