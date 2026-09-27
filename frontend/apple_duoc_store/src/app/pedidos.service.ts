@@ -15,6 +15,13 @@ export interface Producto {
     stock: number;
 }
 
+export interface NuevoProducto {
+    nombre: string;
+    categoria: string;
+    precio: number;
+    stock: number;
+}
+
 @Injectable ({ providedIn: 'root'})
 
 export class PedidosService{
@@ -30,7 +37,7 @@ export class PedidosService{
         );
     }
 
-    crearProducto(producto: Producto) {
+    crearProducto(producto: NuevoProducto) {
         return this.http.post<Producto>(
             this.apiUrl,
             producto,
