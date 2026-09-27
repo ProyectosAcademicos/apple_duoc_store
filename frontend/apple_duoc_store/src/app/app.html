@@ -174,11 +174,6 @@
             </div>
 
             <label>
-              ID
-              <input type="number" min="1" required [(ngModel)]="nuevoProducto.id" />
-            </label>
-
-            <label>
               Nombre
               <input type="text" required [(ngModel)]="nuevoProducto.nombre" />
             </label>
@@ -217,11 +212,6 @@
               <p class="eyebrow">EDITAR PRODUCTO</p>
               <h3 id="edit-product-title">{{ productoEditando.nombre }}</h3>
             </div>
-
-            <label>
-              ID
-              <input type="number" [value]="productoEditando.id" disabled />
-            </label>
 
             <label>
               Nombre

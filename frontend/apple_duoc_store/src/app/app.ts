@@ -6,7 +6,7 @@ import localeEsCl from '@angular/common/locales/es-CL';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { signInWithRedirect, signOut, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-import { PedidosService, Producto } from './pedidos.service';
+import { PedidosService, Producto, NuevoProducto } from './pedidos.service';
 
 registerLocaleData(localeEsCl);
 
@@ -31,8 +31,7 @@ export class App {
   idProductoBuscar = 0;
   productoEncontrado: Producto | null = null;
   productoEditando: Producto | null = null;
-  nuevoProducto: Producto = {
-    id: 0,
+  nuevoProducto: NuevoProducto = {
     nombre: '',
     categoria: '',
     precio: 0,
@@ -186,7 +185,6 @@ export class App {
     }
     
     if (
-      this.nuevoProducto.id <= 0 ||
       !this.nuevoProducto.nombre.trim() ||
       !this.nuevoProducto.categoria.trim() ||
       this.nuevoProducto.precio <= 0 ||
@@ -213,7 +211,6 @@ export class App {
           this.productos.push(productoCreado);
 
           this.nuevoProducto = {
-            id:0,
             nombre: '',
             categoria: '',
             precio: 0,
