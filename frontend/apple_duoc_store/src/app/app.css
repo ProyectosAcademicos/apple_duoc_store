@@ -25,12 +25,15 @@
 
 
 .navbar {
-  height: 52px;
+  min-height: 64px;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  row-gap: 12px;
 
   display: flex;
   align-items: center;
 
-  padding: 0 7%;
+  padding: 12px 7%;
 
   background: rgba(255, 255, 255, 0.92);
 
@@ -143,17 +146,6 @@
 }
 
 
-.hero-actions {
-  display: flex;
-
-  justify-content: center;
-
-  gap: 12px;
-
-  margin-top: 40px;
-
-  flex-wrap: wrap;
-}
 
 
 .btn {
@@ -238,35 +230,8 @@
 }
 
 
-.account-header {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  padding: 35px;
-
-  background: #fff;
-
-  border-radius: 24px;
-
-  border: 1px solid #e5e5e7;
-
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.04);
-}
 
 
-.account-header h2 {
-  margin: 0;
-
-  font-size: 32px;
-
-  font-weight: 600;
-
-  letter-spacing: -0.025em;
-}
 
 
 .account-description {
@@ -307,22 +272,8 @@
 }
 
 
-.token-card {
-  margin-top: 20px;
-
-  padding: 30px;
-
-  background: #fff;
-
-  border-radius: 24px;
-
-  border: 1px solid #e5e5e7;
-}
 
 
-.token-toggle {
-  margin-top: 16px;
-}
 
 .access-token {
   padding: 18px;
@@ -337,7 +288,6 @@
   word-break: break-word;
 }
 
-.token-card h3,
 .orders h3 {
   margin: 0;
 
@@ -349,52 +299,8 @@
 }
 
 
-textarea {
-  display: block;
-
-  width: 100%;
-
-  box-sizing: border-box;
-
-  margin-top: 20px;
-
-  padding: 18px;
-
-  min-height: 160px;
-
-  resize: vertical;
-
-  border: 1px solid #d2d2d7;
-
-  border-radius: 14px;
-
-  outline: none;
-
-  background: #f5f5f7;
-
-  color: #424245;
-
-  font-family:
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
-
-  font-size: 12px;
-
-  line-height: 1.6;
-
-  transition: border-color 0.2s ease;
-}
 
 
-textarea:focus {
-  border-color: #0071e3;
-
-  box-shadow:
-    0 0 0 3px rgba(0, 113, 227, 0.12);
-}
 
 
 
@@ -600,7 +506,7 @@ footer p {
 @media (max-width: 700px) {
 
   .navbar {
-    padding: 0 20px;
+    padding: 12px 20px;
   }
 
 
@@ -629,16 +535,8 @@ footer p {
   }
 
 
-  .hero-actions {
-    flex-direction: column;
-
-    align-items: stretch;
-  }
 
 
-  .hero-actions .btn {
-    width: 100%;
-  }
 
 
   .account {
@@ -646,15 +544,6 @@ footer p {
   }
 
 
-  .account-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    gap: 20px;
-
-    padding: 25px;
-  }
 
 
   .orders-header {
@@ -671,7 +560,6 @@ footer p {
   }
 
 
-  .token-card,
   .orders {
     padding: 22px;
   }
@@ -748,4 +636,25 @@ footer p {
   .product-form { grid-template-columns: minmax(0, 1fr); padding: 18px; }
   .search-controls .btn { width: 100%; }
   .form-actions .btn { flex: 1; }
+}
+
+
+.nav-session { margin-left: auto; max-width: 100%; }
+.nav-username { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile { position: relative; }
+.profile summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; font-size: 14px; }
+.profile summary::-webkit-details-marker { display: none; }
+.profile summary:focus-visible { outline: 3px solid #0071e3; outline-offset: 4px; border-radius: 20px; }
+.profile-avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #e8e8ed; flex-shrink: 0; }
+.profile-menu { position: absolute; right: 0; top: calc(100% + 12px); width: 220px; max-width: calc(100vw - 40px); padding: 8px; box-sizing: border-box; border: 1px solid #e5e5e7; border-radius: 16px; background: #fff; box-shadow: 0 8px 30px #00000014; }
+.profile-menu .status { margin: 0 0 8px; background: transparent; }
+.profile-menu .btn { width: 100%; text-align: left; border-radius: 8px; background: transparent; }
+.profile-menu .btn:hover { background: #f5f5f7; transform: none; }
+.token-panel { box-sizing: border-box; max-width: 1000px; margin: 24px auto; padding: 24px; border: 1px solid #e5e5e7; border-radius: 20px; background: #fff; }
+.token-panel h2 { margin: 0; font-size: 22px; }
+.token-panel .access-token { max-height: 240px; overflow-y: auto; }
+@media (max-width: 1100px) { .nav-links { display: none; } }
+@media (max-width: 700px) {
+  .nav-username { max-width: 90px; }
+  .token-panel { margin: 16px 15px; padding: 20px; }
 }

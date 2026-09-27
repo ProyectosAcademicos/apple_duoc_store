@@ -65,20 +65,21 @@ describe('App', () => {
     const fixture = await iniciarComponente();
     const app = fixture.componentInstance;
     expect(obtenerPedidos).toHaveBeenCalledTimes(1);
+    expect(fixture.nativeElement.querySelector('.spinner')).not.toBeNull();
     respuesta.next([]);
     respuesta.complete();
     await fixture.whenStable();
     respuesta = new Subject<Producto[]>();
-    const boton = fixture.nativeElement.querySelector('.orders button') as HTMLButtonElement;
-    boton.click();
+    expect(fixture.nativeElement.textContent).not.toContain('Consultar productos');
+    app.consultarProductos();
     app.consultarProductos();
     await fixture.whenStable();
     expect(obtenerPedidos).toHaveBeenCalledTimes(2);
-    expect(boton.disabled).toBe(true);
+    expect(app.cargandoProductos).toBe(true);
     respuesta.next([{ id: 1, nombre: 'iPhone', categoria: 'Teléfono', precio: 1000, stock: 2 }]);
     respuesta.complete();
     await fixture.whenStable();
-    expect(boton.disabled).toBe(false);
+    expect(app.cargandoProductos).toBe(false);
     expect(fixture.nativeElement.querySelector('.orders-list').textContent).toContain('iPhone');
     const tarjeta = fixture.nativeElement.querySelector('.order-card').textContent;
     expect(tarjeta).toContain('Teléfono');
@@ -118,31 +119,49 @@ describe('App', () => {
     respuesta.next([]);
     respuesta.complete();
     await fixture.whenStable();
-    expect(fixture.nativeElement.textContent).toContain('Token obtenido correctamente');
+    expect(fixture.nativeElement.querySelector('#token-panel')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('token-de-prueba');
+    const navbar = fixture.nativeElement.querySelector('.nav-session') as HTMLElement;
+    expect(navbar.textContent).toContain('estudiante');
+    expect(navbar.textContent).not.toContain('token-de-prueba');
+    const detalles = fixture.nativeElement.querySelector('.profile') as HTMLDetailsElement;
+    expect(detalles.open).toBe(false);
+    detalles.querySelector('summary')!.click();
+    expect(detalles.open).toBe(true);
     const boton = fixture.nativeElement.querySelector('.token-toggle') as HTMLButtonElement;
-    expect(boton.textContent).toContain('Mostrar Access Token');
+    expect(boton.textContent).toContain('Ver Access Token');
     expect(boton.getAttribute('aria-expanded')).toBe('false');
     expect(fixture.nativeElement.querySelector('#access-token')).toBeNull();
     boton.click();
     await fixture.whenStable();
-    expect(boton.textContent).toContain('Ocultar Access Token');
+    expect(detalles.open).toBe(false);
+    expect(navbar.querySelector('#access-token')).toBeNull();
     expect(boton.getAttribute('aria-expanded')).toBe('true');
     expect(fixture.nativeElement.querySelector('#access-token').textContent).toBe('token-de-prueba');
-    boton.click();
+    (fixture.nativeElement.querySelector('.token-close') as HTMLButtonElement).click();
     await fixture.whenStable();
-    expect(boton.textContent).toContain('Mostrar Access Token');
+    expect(boton.getAttribute('aria-expanded')).toBe('false');
     expect(fixture.nativeElement.querySelector('#access-token')).toBeNull();
     expect(fetchAuthSession).toHaveBeenCalledTimes(1);
+    detalles.querySelector('summary')!.click();
     boton.click();
     await fixture.whenStable();
-    await fixture.componentInstance.logout();
+    const logout = vi.spyOn(fixture.componentInstance, 'logout');
+    detalles.querySelector('summary')!.click();
+    const salir = navbar.querySelector('.profile-logout') as HTMLButtonElement;
+    expect(salir.textContent).toContain('Cerrar sesión');
+    salir.click();
+    await logout.mock.results[0].value;
     await fixture.whenStable();
     expect(signOut).toHaveBeenCalledTimes(1);
     expect(fixture.nativeElement.querySelector('.account')).toBeNull();
     expect(fixture.componentInstance.usuario).toBe('');
     expect(fixture.componentInstance.accessToken).toBe('');
     expect(fixture.componentInstance.mostrarAccessToken).toBe(false);
+    expect(navbar.textContent).toContain('Iniciar sesión');
+    expect(navbar.textContent).not.toContain('estudiante');
+    expect(navbar.querySelector('.profile')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#access-token')).toBeNull();
   });
 
   it('muestra fallos de inicio y cierre de sesión sin detalles técnicos', async () => {
@@ -168,6 +187,13 @@ describe('App', () => {
     expect(fixture.componentInstance.procesandoSesion).toBe(false);
     expect(fixture.componentInstance.errorSesion).toBe('');
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
+    const entrar = fixture.nativeElement.querySelector('.nav-session button') as HTMLButtonElement;
+    expect(entrar.textContent).toContain('Iniciar sesión');
+    expect(entrar.disabled).toBe(false);
+    expect(fixture.nativeElement.querySelector('.profile')).toBeNull();
+    entrar.click();
+    await fixture.whenStable();
+    expect(signInWithRedirect).toHaveBeenCalledTimes(1);
   });
 
   it('no carga productos ni muestra sesión expirada si inicialmente faltan tokens', async () => {
@@ -181,7 +207,7 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
   });
 
-  it('carga automáticamente una vez tras validar sesión y permite consultar de nuevo manualmente', async () => {
+  it('carga automáticamente una vez y conserva la consulta interna sin botón de consulta', async () => {
     simularSesionValida();
     const fixture = await iniciarComponente();
     const app = fixture.componentInstance;
@@ -202,9 +228,8 @@ describe('App', () => {
     expect(fetchAuthSession).toHaveBeenCalledTimes(1);
     expect(obtenerPedidos).toHaveBeenCalledTimes(1);
     respuesta = new Subject<Producto[]>();
-    const boton = fixture.nativeElement.querySelector('.orders button') as HTMLButtonElement;
-    expect(boton.disabled).toBe(false);
-    boton.click();
+    expect(fixture.nativeElement.textContent).not.toContain('Consultar productos');
+    app.consultarProductos();
     expect(obtenerPedidos).toHaveBeenCalledTimes(2);
     respuesta.next([]);
     respuesta.complete();
@@ -212,14 +237,10 @@ describe('App', () => {
     expect(app.cargandoProductos).toBe(false);
   });
 
-  it('mantiene el botón Ver sesión tras una comprobación inicial sin usuario', async () => {
+  it('mantiene la comprobación de sesión tras una inicialización sin usuario', async () => {
     const fixture = await iniciarComponente();
     simularSesionValida();
-    const boton = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
-      .find(element => element.textContent?.trim() === 'Ver sesión')!;
-    expect(boton.disabled).toBe(false);
-    boton.click();
-    await vi.mocked(fixture.componentInstance.verSesion).mock.results[1].value;
+    await fixture.componentInstance.verSesion();
     await fixture.whenStable();
     expect(getCurrentUser).toHaveBeenCalledTimes(2);
     expect(fetchAuthSession).toHaveBeenCalledTimes(1);
@@ -231,4 +252,3 @@ describe('App', () => {
     expect(fixture.componentInstance.cargandoProductos).toBe(false);
   });
 });
-

@@ -10,7 +10,50 @@
       <span>Pedidos</span>
       <span>Soporte</span>
     </div>
+    <div class="nav-session">
+      @if (autenticado) {
+        <details class="profile" #perfil (keydown.escape)="perfil.open = false; perfilControl.focus()">
+          <summary #perfilControl>
+            <span class="profile-avatar" aria-hidden="true">{{ usuario.slice(0, 1).toUpperCase() }}</span>
+            <span class="nav-username" [title]="usuario">{{ usuario }}</span>
+            <span aria-hidden="true">⌄</span>
+          </summary>
+          <div class="profile-menu">
+            <p class="status"><span class="status-dot" aria-hidden="true"></span>Sesión activa</p>
+            <button type="button" class="btn token-toggle" aria-controls="token-panel"
+              [attr.aria-expanded]="mostrarAccessToken"
+              (click)="mostrarAccessToken = true; perfil.open = false; perfilControl.focus()">Ver Access Token</button>
+            <button type="button" class="btn profile-logout" (click)="logout()"
+              [disabled]="procesandoSesion || cargandoProductos">Cerrar sesión</button>
+          </div>
+        </details>
+      } @else {
+        <button
+          type="button"
+          class="btn btn-primary small"
+          (click)="login()"
+          [disabled]="procesandoSesion || cargandoProductos"
+        >
+          Iniciar sesión
+        </button>
+      }
+    </div>
   </nav>
+
+  @if (autenticado && mostrarAccessToken) {
+    <section id="token-panel" class="token-panel" aria-labelledby="token-title">
+      <div class="orders-header">
+        <div>
+          <p class="eyebrow">AWS COGNITO</p>
+          <h2 id="token-title">Access Token</h2>
+        </div>
+        <button type="button" class="btn btn-secondary small token-close"
+          (click)="mostrarAccessToken = false">Ocultar Access Token</button>
+      </div>
+      <p class="account-description">Token de la sesión, utilizado para las solicitudes autenticadas a la API.</p>
+      <p id="access-token" class="access-token">{{ accessToken }}</p>
+    </section>
+  }
 
   <section class="hero">
     <p class="eyebrow">APPLE STORE</p>
@@ -20,32 +63,6 @@
     <p class="hero-description">
       Explora tus productos, gestiona tu cuenta y consulta tus pedidos de forma sencilla.
     </p>
-
-    <div class="hero-actions">
-      <button
-        class="btn btn-primary"
-        (click)="login()"
-        [disabled]="procesandoSesion || cargandoProductos"
-      >
-        Iniciar sesión
-      </button>
-
-      <button
-        class="btn btn-secondary"
-        (click)="verSesion()"
-        [disabled]="procesandoSesion || cargandoProductos"
-      >
-        Ver sesión
-      </button>
-
-      <button
-        class="btn btn-secondary"
-        (click)="logout()"
-        [disabled]="procesandoSesion || cargandoProductos"
-      >
-        Cerrar sesión
-      </button>
-    </div>
 
     @if (procesandoSesion) {
       <p class="message" role="status">Procesando sesión...</p>
@@ -57,42 +74,6 @@
 
   @if (autenticado) {
     <section class="account">
-      <div class="account-header">
-        <div>
-          <p class="eyebrow">CUENTA</p>
-          <h2>Hola, {{ usuario }}</h2>
-          <p class="account-description">Tu sesión está activa.</p>
-        </div>
-
-        <div class="status">
-          <span class="status-dot"></span>
-          Sesión activa
-        </div>
-      </div>
-
-      <div class="token-card">
-        <div class="card-header">
-          <div>
-            <p class="eyebrow">SEGURIDAD</p>
-            <h3>Sesión autenticada</h3>
-          </div>
-        </div>
-
-        <p class="account-description">Token obtenido correctamente.</p>
-        <button
-          type="button"
-          class="btn btn-secondary small token-toggle"
-          [attr.aria-expanded]="mostrarAccessToken"
-          aria-controls="access-token"
-          (click)="mostrarAccessToken = !mostrarAccessToken"
-        >
-          {{ mostrarAccessToken ? 'Ocultar Access Token' : 'Mostrar Access Token' }}
-        </button>
-        @if (mostrarAccessToken) {
-          <p id="access-token" class="access-token">{{ accessToken }}</p>
-        }
-      </div>
-
       <!-- Productos -->
       <div class="orders" [attr.aria-busy]="cargandoProductos">
         <div class="orders-header">
@@ -102,14 +83,6 @@
             <p class="account-description">Consulta y administra tu catálogo.</p>
           </div>
           <div class="product-actions">
-            <!-- Btn para consultar productos -->
-            <button
-              class="btn btn-primary small"
-              (click)="consultarProductos()"
-              [disabled]="cargandoProductos || procesandoSesion"
-            >
-              Consultar productos
-            </button>
             <!-- Btn para crear productos  -->
             <button
               class="btn btn-secondary small"
@@ -120,7 +93,11 @@
           </div>
         </div>
 
-        <div class="product-search" role="search" aria-label="Buscar producto por ID, nombre o categoría">
+        <div
+          class="product-search"
+          role="search"
+          aria-label="Buscar producto por ID, nombre o categoría"
+        >
           <label for="product-search">Buscar producto</label>
 
           <div class="search-controls">
@@ -131,14 +108,9 @@
               placeholder="ID, nombre o categoría"
             />
 
-            <button
-              type="button"
-              class="btn btn-secondary small"
-              (click)="buscarProductos()"
-              >
+            <button type="button" class="btn btn-secondary small" (click)="buscarProductos()">
               Buscar
             </button>
-
           </div>
         </div>
 
