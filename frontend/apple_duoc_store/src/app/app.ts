@@ -109,7 +109,17 @@ export class App {
         if (!comprobacionInicial) this.errorSesion = ERROR_SESION;
         return;
       }
-      this.usuario = user.username;
+      const atributos = session.tokens?.idToken?.payload;
+      this.usuario = [
+        atributos?.['preferred_username'],
+        atributos?.['name'],
+        atributos?.['given_name'],
+        atributos?.['email'],
+        user.username,
+      ]
+        .filter((valor): valor is string => typeof valor === 'string')
+        .map(valor => valor.trim())
+        .find(valor => valor.length > 0) ?? '';
       this.accessToken = session.tokens.accessToken.toString();
       this.mostrarAccessToken = false;
       this.autenticado = true;

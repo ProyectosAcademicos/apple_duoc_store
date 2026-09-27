@@ -54,6 +54,31 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
+  it.each<{ caso: string; payload: Record<string, string | number | boolean | never[]>; esperado: string }>([
+    { caso: 'prioriza preferred_username', payload: { preferred_username: ' alias ', name: 'Nombre', given_name: 'Nombre corto', email: 'usuario@example.com' }, esperado: 'alias' },
+    { caso: 'usa name si falta el alias', payload: { name: ' Nombre completo ', given_name: 'Nombre', email: 'usuario@example.com' }, esperado: 'Nombre completo' },
+    { caso: 'usa given_name e ignora valores vacíos o no string', payload: { preferred_username: 123, name: '   ', given_name: ' Nombre ', email: 'usuario@example.com' }, esperado: 'Nombre' },
+    { caso: 'usa email si no hay nombres válidos', payload: { preferred_username: '', name: false, given_name: ' ', email: ' usuario@example.com ' }, esperado: 'usuario@example.com' },
+    { caso: 'usa username si no hay atributos amigables', payload: {}, esperado: 'identificador-interno' },
+    { caso: 'usa username si todos los atributos son inválidos', payload: { preferred_username: [], name: false, given_name: 123, email: ' ' }, esperado: 'identificador-interno' },
+  ])('$caso', async ({ payload, esperado }) => {
+    vi.mocked(getCurrentUser).mockResolvedValue({ username: ' identificador-interno ', userId: '1' });
+    vi.mocked(fetchAuthSession).mockResolvedValue({ tokens: {
+      accessToken: { toString: () => 'token-de-prueba', payload: {} },
+      idToken: { toString: () => 'id-token-de-prueba', payload },
+    } });
+    const fixture = await iniciarComponente();
+    expect(fixture.componentInstance.usuario).toBe(esperado);
+    expect(fixture.nativeElement.querySelector('.nav-username').textContent).toBe(esperado);
+    expect(fixture.componentInstance.accessToken).toBe('token-de-prueba');
+    expect(getCurrentUser).toHaveBeenCalledTimes(1);
+    expect(fetchAuthSession).toHaveBeenCalledTimes(1);
+    expect(obtenerPedidos).toHaveBeenCalledTimes(1);
+    respuesta.next([]);
+    respuesta.complete();
+    await fixture.whenStable();
+  });
+
   it('should render title', async () => {
     const fixture = await iniciarComponente();
     const compiled = fixture.nativeElement as HTMLElement;
