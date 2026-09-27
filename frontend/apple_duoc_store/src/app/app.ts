@@ -164,15 +164,28 @@ export class App {
           this.productos = data;
         },
         error: (error: unknown) => {
-          if (error instanceof HttpErrorResponse && error.status === 401) {
-            this.limpiarSesion();
-            this.errorSesion = ERROR_SESION;
-          } else if (error instanceof HttpErrorResponse && error.status === 403) {
-            this.errorProductos = 'No tienes autorización para consultar esta información.';
-          } else if (
-            (error instanceof HttpErrorResponse && error.status === 0) ||
-            (error instanceof Error && error.name === 'NetworkError')
-          ) {
+          if (error instanceof HttpErrorResponse) {
+            console.error('Error al consultar productos:', {
+              status: error.status,
+              url: error.url,
+              message: error.message,
+            });
+
+            if (error.status === 401) {
+              this.errorProductos = 'La API rechazó la autenticación de la solicitud.';
+            } else if (error.status === 403) {
+              this.errorProductos = 'Tu sesión es válida, pero no tienes permisos para consultar los productos.';
+            } else if (error.status === 404) {
+              this.errorProductos = 'No se encontró el recurso solicitado en la API.';
+            } else if (error.status === 0) {
+              this.errorProductos = ERROR_CONEXION;
+            } else if (error.status >= 500) {
+              this.errorProductos = 'El servidor presentó un error. Intenta nuevamente.'
+            } else {
+              this.errorProductos = 'No fue posible cargar los productos.'
+            }
+
+          } else if (error instanceof Error && error.name === 'NetworkError') {
             this.errorProductos = ERROR_CONEXION;
           } else {
             this.errorProductos = 'No fue posible cargar los productos.';
