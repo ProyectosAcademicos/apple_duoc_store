@@ -15,10 +15,10 @@ Amplify.configure({ // se encarga de todo lo necesario para que se llame cognito
             'email',
             'openid',
             'profile',
-            'applestoreapi/productos-actualizar',
-            'applestoreapi/productos-consultar',
-            'applestoreapi/productos-crear',
-            'applestoreapi/productos-eliminar'
+            'apple-productos-duoc/productos-actualizar',
+            'apple-productos-duoc/productos-consultar',
+            'apple-productos-duoc/productos-crear',
+            'apple-productos-duoc/productos-eliminar'
           ],
           redirectSignIn:[
             'http://localhost:4200'
